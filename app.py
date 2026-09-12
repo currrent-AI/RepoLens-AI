@@ -194,7 +194,7 @@ Analyze this repository:
             }
         ],
         temperature=0.1,
-        max_tokens=1500
+        max_tokens=2500
     )
 
     return response.choices[0].message.content
@@ -322,158 +322,947 @@ def create_visual_architecture(architecture):
 
 
 # ============================================================
-# RepoLens AI — Product UI
+# RepoLens AI — Premium Product UI
 # Landing → Login/Signup → Dashboard → Analyzer
-# ============================================================
+
 import streamlit as st
 import traceback
 
-st.set_page_config(page_title='RepoLens AI', page_icon='🔭', layout='wide')
+st.set_page_config(
+    page_title="RepoLens AI",
+    page_icon="🔭",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 
-if 'page' not in st.session_state: st.session_state.page='landing'
-if 'authenticated' not in st.session_state: st.session_state.authenticated=False
-if 'user' not in st.session_state: st.session_state.user=''
-if 'users' not in st.session_state: st.session_state.users={'demo@repolens.ai':{'name':'Demo User','password':'demo123'}}
-if 'history' not in st.session_state: st.session_state.history=[]
-if 'architecture' not in st.session_state: st.session_state.architecture=None
-if 'files' not in st.session_state: st.session_state.files=[]
-if 'repo_url' not in st.session_state: st.session_state.repo_url=''
+# ============================================================
+# SESSION STATE
+# ============================================================
 
-st.markdown('''<style>
-.stApp{background:radial-gradient(circle at 15% 5%,rgba(59,130,246,.12),transparent 28%),radial-gradient(circle at 85% 15%,rgba(34,211,238,.08),transparent 25%),#080F1E;color:#F1F5F9}
-.block-container{max-width:1380px;padding-top:1.3rem;padding-bottom:4rem}
-.hero{padding:50px;border:1px solid #1D304D;border-radius:26px;background:linear-gradient(135deg,rgba(17,28,49,.97),rgba(8,15,30,.94));box-shadow:0 25px 80px rgba(0,0,0,.35);margin:22px 0 28px}
-.hero h1{font-size:clamp(42px,6vw,72px);line-height:1.02;margin:12px 0;letter-spacing:-2.5px}.gradient{background:linear-gradient(90deg,#3B82F6,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.subtitle,.muted{color:#8FA4C0;line-height:1.7}.subtitle{font-size:18px;max-width:820px}.badge{display:inline-block;padding:7px 13px;border:1px solid #274568;border-radius:999px;color:#22D3EE;background:rgba(34,211,238,.07);font-size:12px;font-weight:700;letter-spacing:1px}
-.card{background:rgba(17,28,49,.86);border:1px solid #1D304D;border-radius:18px;padding:24px;height:100%}.section-title{font-size:26px;font-weight:800;margin:30px 0 16px}.feature-title{font-size:18px;font-weight:750;margin:10px 0 7px}.metric{background:#111C31;border:1px solid #1D304D;border-radius:16px;padding:18px;text-align:center}.metric-num{font-size:30px;font-weight:850;color:#3B82F6}.metric-label{color:#8FA4C0;font-size:12px}
-.auth{max-width:560px;margin:60px auto;background:#0D1729;border:1px solid #1D304D;border-radius:24px;padding:36px;box-shadow:0 25px 80px rgba(0,0,0,.4)}
-.stButton>button{min-height:46px;border-radius:11px;border:1px solid #3B82F6;background:linear-gradient(135deg,#2563EB,#0891B2);color:white;font-weight:750}[data-testid=stSidebar]{background:#080D1A;border-right:1px solid #1D304D}
-</style>''',unsafe_allow_html=True)
+defaults = {
+    "page": "landing",
+    "authenticated": False,
+    "user": "",
+    "users": {
+        "demo@repolens.ai": {
+            "name": "Demo User",
+            "password": "demo123",
+        }
+    },
+    "history": [],
+    "architecture": None,
+    "files": [],
+    "repo_url": "",
+    "tab": "overview",
+}
 
-def nav():
-    a,b,c,d=st.columns([5,1,1,1])
-    with a: st.markdown('### 🔭 **RepoLens AI**')
-    with b:
-        if st.button('Home'): st.session_state.page='landing';st.rerun()
-    with c:
-        if st.button('Features'): st.session_state.page='landing';st.rerun()
-    with d:
+for key, value in defaults.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+BASE_DIR = Path(__file__).resolve().parent
+LOGO = BASE_DIR / "assets" / "repolens_logo.png"
+
+# ============================================================
+# PREMIUM DESIGN SYSTEM
+# ============================================================
+
+st.markdown(
+    """
+<style>
+/* ---------- APP ---------- */
+.stApp {
+    background:
+        radial-gradient(circle at 8% 0%, rgba(59,130,246,.15), transparent 27%),
+        radial-gradient(circle at 92% 7%, rgba(34,211,238,.11), transparent 24%),
+        linear-gradient(180deg, #060B16 0%, #080F1E 45%, #070D19 100%);
+    color: #F1F5F9;
+}
+
+.block-container {
+    max-width: 1320px;
+    padding-top: 1.25rem;
+    padding-bottom: 5rem;
+}
+
+/* ---------- HEADER ---------- */
+.topbar {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 10px 4px 18px;
+    border-bottom: 1px solid rgba(148,163,184,.10);
+    margin-bottom: 28px;
+}
+
+.brand {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:-.4px;
+}
+
+.brand-mark {
+    width:40px;
+    height:40px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#2563EB,#06B6D4);
+    box-shadow:0 8px 30px rgba(37,99,235,.28);
+    font-size:21px;
+}
+
+.brand-sub {
+    color:#7186A3;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:1.3px;
+    margin-top:2px;
+}
+
+/* ---------- HERO ---------- */
+.hero {
+    position:relative;
+    overflow:hidden;
+    padding:72px 70px 68px;
+    border:1px solid #1D304D;
+    border-radius:30px;
+    background:
+        radial-gradient(circle at 82% 25%, rgba(34,211,238,.10), transparent 25%),
+        radial-gradient(circle at 20% 90%, rgba(59,130,246,.12), transparent 30%),
+        linear-gradient(135deg, rgba(17,28,49,.98), rgba(7,14,29,.97));
+    box-shadow:
+        0 35px 100px rgba(0,0,0,.42),
+        inset 0 1px rgba(255,255,255,.035);
+    margin: 12px 0 30px;
+}
+
+.hero:after {
+    content:"";
+    position:absolute;
+    width:420px;
+    height:420px;
+    right:-190px;
+    top:-220px;
+    border-radius:50%;
+    border:1px solid rgba(34,211,238,.10);
+    box-shadow:0 0 0 50px rgba(34,211,238,.025),0 0 0 100px rgba(34,211,238,.018);
+}
+
+.badge {
+    display:inline-flex;
+    align-items:center;
+    padding:9px 15px;
+    border:1px solid #274568;
+    border-radius:999px;
+    color:#22D3EE;
+    background:rgba(34,211,238,.065);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:1.4px;
+}
+
+.hero h1 {
+    position:relative;
+    z-index:1;
+    font-size:clamp(44px,6vw,78px);
+    line-height:1.01;
+    letter-spacing:-4px;
+    margin:24px 0 18px;
+    max-width:1000px;
+}
+
+.gradient {
+    background:linear-gradient(90deg,#3B82F6 0%,#22D3EE 72%);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+}
+
+.subtitle {
+    color:#8FA4C0;
+    line-height:1.75;
+    font-size:17px;
+    max-width:820px;
+}
+
+.hero-mini {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:28px;
+}
+
+.pill {
+    padding:8px 12px;
+    border:1px solid #1D304D;
+    border-radius:999px;
+    background:rgba(8,15,30,.55);
+    color:#AFC1D8;
+    font-size:12px;
+}
+
+/* ---------- SECTIONS ---------- */
+.section-kicker {
+    color:#22D3EE;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:1.6px;
+    text-transform:uppercase;
+    margin-bottom:7px;
+}
+
+.section-title {
+    color:#F1F5F9;
+    font-size:30px;
+    font-weight:850;
+    letter-spacing:-1px;
+    margin:0 0 22px;
+}
+
+.section-copy {
+    color:#7F94B0;
+    margin-top:-12px;
+    margin-bottom:28px;
+}
+
+/* ---------- FEATURE CARDS ---------- */
+.feature-card {
+    min-height:205px;
+    padding:27px;
+    border-radius:20px;
+    border:1px solid #1D304D;
+    background:
+        linear-gradient(145deg, rgba(17,28,49,.96), rgba(12,21,38,.92));
+    box-shadow:0 16px 45px rgba(0,0,0,.20);
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.feature-icon {
+    width:45px;
+    height:45px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:13px;
+    background:rgba(59,130,246,.10);
+    border:1px solid rgba(59,130,246,.22);
+    font-size:23px;
+    margin-bottom:23px;
+}
+
+.feature-title {
+    color:#F1F5F9;
+    font-size:17px;
+    font-weight:800;
+    margin-bottom:9px;
+}
+
+.muted {
+    color:#8FA4C0;
+    line-height:1.65;
+}
+
+/* ---------- AUTH ---------- */
+.auth-wrap {
+    max-width:520px;
+    margin:70px auto 0;
+}
+
+.auth-card {
+    padding:40px;
+    border:1px solid #1D304D;
+    border-radius:26px;
+    background:
+        radial-gradient(circle at 80% 0%, rgba(34,211,238,.07), transparent 30%),
+        #0C1628;
+    box-shadow:0 35px 100px rgba(0,0,0,.42);
+}
+
+.auth-title {
+    font-size:32px;
+    font-weight:850;
+    letter-spacing:-1px;
+    margin-bottom:7px;
+}
+
+.auth-copy {
+    color:#8297B2;
+    margin-bottom:25px;
+}
+
+/* ---------- DASHBOARD ---------- */
+.dash-hero {
+    padding:34px 38px;
+    border:1px solid #1D304D;
+    border-radius:24px;
+    background:linear-gradient(135deg,#101D33,#0A1324);
+    box-shadow:0 22px 65px rgba(0,0,0,.30);
+    margin-bottom:30px;
+}
+
+.metric {
+    min-height:128px;
+    padding:23px;
+    border:1px solid #1D304D;
+    border-radius:18px;
+    background:#101B2F;
+    box-shadow:0 12px 35px rgba(0,0,0,.16);
+}
+
+.metric-num {
+    font-size:34px;
+    font-weight:900;
+    color:#38BDF8;
+    letter-spacing:-1px;
+}
+
+.metric-label {
+    color:#7890AD;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:1.3px;
+    margin-top:7px;
+}
+
+.panel {
+    padding:26px;
+    border:1px solid #1D304D;
+    border-radius:20px;
+    background:#0E192C;
+    margin-top:24px;
+}
+
+/* ---------- STREAMLIT CONTROLS ---------- */
+.stButton > button {
+    min-height:47px;
+    border-radius:12px !important;
+    border:1px solid rgba(59,130,246,.65) !important;
+    background:linear-gradient(135deg,#2563EB,#0891B2) !important;
+    color:white !important;
+    font-weight:800 !important;
+    box-shadow:0 8px 24px rgba(37,99,235,.16);
+    transition:all .18s ease;
+}
+
+.stButton > button:hover {
+    border-color:#22D3EE !important;
+    box-shadow:0 12px 34px rgba(34,211,238,.18);
+    transform:translateY(-1px);
+}
+
+div[data-testid="stTextInput"] input {
+    background:#0D182B !important;
+    color:#E5EEF9 !important;
+    border:1px solid #203653 !important;
+    border-radius:12px !important;
+}
+
+div[data-testid="stTextInput"] input:focus {
+    border-color:#3B82F6 !important;
+    box-shadow:0 0 0 1px #3B82F6 !important;
+}
+
+[data-testid="stSidebar"] {
+    background:#070D19;
+    border-right:1px solid #1D304D;
+}
+
+[data-testid="stSidebar"] .stButton > button {
+    text-align:left !important;
+    background:#0D1728 !important;
+    border-color:#172A44 !important;
+    box-shadow:none !important;
+}
+
+[data-testid="stSidebar"] .stButton > button:hover {
+    background:#12233C !important;
+}
+
+/* ---------- RESULT AREA ---------- */
+.result-card {
+    padding:22px;
+    border-radius:17px;
+    border:1px solid #1D304D;
+    background:#101B2F;
+}
+
+.footer {
+    margin-top:70px;
+    padding-top:24px;
+    border-top:1px solid rgba(148,163,184,.12);
+    color:#64748B;
+    font-size:12px;
+}
+
+/* reduce default vertical gaps */
+div[data-testid="stVerticalBlock"] > div { gap: .45rem; }
+
+@media (max-width: 900px) {
+    .hero { padding:42px 28px; }
+    .hero h1 { letter-spacing:-2px; }
+    .auth-card { padding:28px; }
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+# ============================================================
+# NAVIGATION
+# ============================================================
+
+def top_nav():
+    left, h1, h2, h3 = st.columns([5.6, 1, 1, 1.25])
+
+    with left:
+        st.markdown(
+            """
+            <div class="topbar">
+                <div class="brand">
+                    <div class="brand-mark">🔭</div>
+                    <div>
+                        <div>RepoLens AI</div>
+                        <div class="brand-sub">SOFTWARE ARCHITECTURE INTELLIGENCE</div>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with h1:
+        if st.button("Home", use_container_width=True):
+            st.session_state.page = "landing"
+            st.rerun()
+
+    with h2:
+        if st.button("Features", use_container_width=True):
+            st.session_state.page = "landing"
+            st.rerun()
+
+    with h3:
         if st.session_state.authenticated:
-            if st.button('Dashboard'): st.session_state.page='dashboard';st.rerun()
+            if st.button("Dashboard", use_container_width=True):
+                st.session_state.page = "dashboard"
+                st.rerun()
         else:
-            if st.button('Login'): st.session_state.page='login';st.rerun()
+            if st.button("Login", use_container_width=True):
+                st.session_state.page = "login"
+                st.rerun()
+
+
+# ============================================================
+# LANDING PAGE
+# ============================================================
 
 def landing():
-    nav(); logo=Path('assets/repolens_logo.png')
-    if logo.exists():
-        x,y=st.columns([1,6]); x.image(str(logo),width=88)
-    st.markdown('''<div class="hero"><span class="badge">AI-POWERED SOFTWARE ARCHITECTURE INTELLIGENCE</span><h1>See Your Codebase.<br><span class="gradient">Understand Its Architecture.</span></h1><div class="subtitle">RepoLens AI analyzes a GitHub repository and transforms complex source code into an understandable architecture map — with components, connections, data flow, technologies and security intelligence.</div></div>''',unsafe_allow_html=True)
-    a,b,_=st.columns([1.3,1.1,3])
-    with a:
-        if st.button('🚀 Get Started',use_container_width=True): st.session_state.page='signup';st.rerun()
-    with b:
-        if st.button('🔐 Sign In',use_container_width=True): st.session_state.page='login';st.rerun()
-    st.markdown('<div class="section-title">Powerful Developer Intelligence</div>',unsafe_allow_html=True)
-    features=[('🧠','AI Architecture Analysis','Understand unfamiliar repositories with AI.'),('🗺️','Visual Architecture','Generate a clear component relationship map.'),('🛡️','Security Intelligence','Surface potential security concerns.'),('🔄','Data Flow','Understand important application data movement.'),('⚡','Fast Scanning','Scan public GitHub repositories quickly.'),('📊','Developer Dashboard','Keep your analysis workspace organized.')]
-    cs=st.columns(3)
-    for i,(ic,t,desc) in enumerate(features):
-        with cs[i%3]: st.markdown(f'<div class="card"><div style="font-size:28px">{ic}</div><div class="feature-title">{t}</div><div class="muted">{desc}</div></div>',unsafe_allow_html=True)
-        if i%3==2: st.write('')
+    top_nav()
 
-def auth(kind):
-    st.markdown('<div class="auth">',unsafe_allow_html=True)
-    st.markdown('## '+('Welcome back 👋' if kind=='login' else 'Create your account 🚀'))
-    if kind=='login':
-        email=st.text_input('Email',placeholder='you@example.com');pw=st.text_input('Password',type='password')
-        if st.button('🔐 Sign In',use_container_width=True):
-            u=st.session_state.users.get(email.strip().lower())
-            if u and u['password']==pw: st.session_state.authenticated=True;st.session_state.user=email.strip().lower();st.session_state.page='dashboard';st.rerun()
-            else: st.error('Invalid email or password.')
-        st.caption('Demo: demo@repolens.ai / demo123')
-        if st.button('Create a new account'): st.session_state.page='signup';st.rerun()
+    logo_col, _ = st.columns([1, 7])
+    with logo_col:
+        if LOGO.exists():
+            st.image(str(LOGO), width=110)
+
+    st.markdown(
+        """
+        <div class="hero">
+            <span class="badge">AI-POWERED SOFTWARE ARCHITECTURE INTELLIGENCE</span>
+
+            <h1>
+                See Your Codebase.<br>
+                <span class="gradient">Understand Its Architecture.</span>
+            </h1>
+
+            <div class="subtitle">
+                RepoLens AI analyzes a GitHub repository and transforms complex
+                source code into an understandable architecture map — including
+                components, connections, data flow, technologies and security intelligence.
+            </div>
+
+            <div class="hero-mini">
+                <span class="pill">✦ AI Architecture Analysis</span>
+                <span class="pill">◈ Visual Architecture</span>
+                <span class="pill">🛡 Security Intelligence</span>
+                <span class="pill">↗ Data Flow</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    b1, b2, spacer = st.columns([1.2, 1.2, 3.8])
+
+    with b1:
+        if st.button("🚀 Get Started", use_container_width=True):
+            st.session_state.page = "signup"
+            st.rerun()
+
+    with b2:
+        if st.button("🔐 Sign In", use_container_width=True):
+            st.session_state.page = "login"
+            st.rerun()
+
+    st.write("")
+    st.markdown('<div class="section-kicker">WHY REPOLENS AI</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Powerful Developer Intelligence</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-copy">From raw source code to a visual understanding of how a software system is built.</div>',
+        unsafe_allow_html=True,
+    )
+
+    features = [
+        ("🧠", "AI Architecture Analysis", "Understand unfamiliar repositories with AI-powered architecture extraction."),
+        ("◈", "Visual Architecture", "Generate a clear component relationship map from detected code structure."),
+        ("🛡", "Security Intelligence", "Surface potential security concerns that can reasonably be inferred from the code."),
+        ("↗", "Data Flow", "Understand important application data movement across detected components."),
+        ("⚡", "Fast Scanning", "Scan public GitHub repositories quickly using shallow cloning and focused source extraction."),
+        ("📊", "Developer Dashboard", "Keep your analyses organized with repository history and architecture metrics."),
+    ]
+
+    for row in range(2):
+        cols = st.columns(3, gap="large")
+        for col_idx in range(3):
+            icon, title, desc = features[row * 3 + col_idx]
+            with cols[col_idx]:
+                st.markdown(
+                    f"""
+                    <div class="feature-card">
+                        <div class="feature-icon">{icon}</div>
+                        <div class="feature-title">{title}</div>
+                        <div class="muted">{desc}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+        st.write("")
+
+    st.markdown(
+        """
+        <div class="footer">
+            <b>RepoLens AI</b> · See Your Codebase. Understand Its Architecture.
+            <br>AI-powered repository intelligence for developers.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+# ============================================================
+# LOGIN / SIGNUP
+# ============================================================
+
+def auth_page(kind):
+    top_nav()
+
+    st.markdown('<div class="auth-wrap">', unsafe_allow_html=True)
+
+    if kind == "login":
+        st.markdown(
+            """
+            <div class="auth-card">
+                <div class="badge">SECURE DEVELOPER ACCESS</div>
+                <div class="auth-title">Welcome back 👋</div>
+                <div class="auth-copy">
+                    Sign in to access your RepoLens architecture workspace.
+                </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        email = st.text_input("Email", placeholder="you@example.com", key="login_email")
+        password = st.text_input("Password", type="password", key="login_password")
+
+        if st.button("🔐 Sign In", use_container_width=True):
+            user = st.session_state.users.get(email.strip().lower())
+
+            if user and user["password"] == password:
+                st.session_state.authenticated = True
+                st.session_state.user = email.strip().lower()
+                st.session_state.page = "dashboard"
+                st.rerun()
+            else:
+                st.error("Invalid email or password.")
+
+        st.caption("Demo account: demo@repolens.ai / demo123")
+
+        if st.button("Create a new account", use_container_width=True):
+            st.session_state.page = "signup"
+            st.rerun()
+
     else:
-        name=st.text_input('Full name');email=st.text_input('Email',placeholder='you@example.com');pw=st.text_input('Password',type='password');cpw=st.text_input('Confirm password',type='password')
-        if st.button('🚀 Create Account',use_container_width=True):
-            e=email.strip().lower()
-            if not name.strip() or not e or not pw: st.error('Please fill all fields.')
-            elif pw!=cpw: st.error('Passwords do not match.')
-            elif e in st.session_state.users: st.error('Account already exists.')
-            else: st.session_state.users[e]={'name':name.strip(),'password':pw};st.session_state.authenticated=True;st.session_state.user=e;st.session_state.page='dashboard';st.rerun()
-        if st.button('Already have an account? Sign in'): st.session_state.page='login';st.rerun()
-    if st.button('← Back to Home'): st.session_state.page='landing';st.rerun()
-    st.markdown('</div>',unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div class="auth-card">
+                <div class="badge">START YOUR WORKSPACE</div>
+                <div class="auth-title">Create your account 🚀</div>
+                <div class="auth-copy">
+                    Build your personal repository intelligence workspace.
+                </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-def sidebar():
+        name = st.text_input("Full name", key="signup_name")
+        email = st.text_input("Email", placeholder="you@example.com", key="signup_email")
+        password = st.text_input("Password", type="password", key="signup_password")
+        confirm = st.text_input("Confirm password", type="password", key="signup_confirm")
+
+        if st.button("🚀 Create Account", use_container_width=True):
+            email_clean = email.strip().lower()
+
+            if not name.strip() or not email_clean or not password:
+                st.error("Please fill all fields.")
+            elif password != confirm:
+                st.error("Passwords do not match.")
+            elif email_clean in st.session_state.users:
+                st.error("Account already exists.")
+            else:
+                st.session_state.users[email_clean] = {
+                    "name": name.strip(),
+                    "password": password,
+                }
+                st.session_state.authenticated = True
+                st.session_state.user = email_clean
+                st.session_state.page = "dashboard"
+                st.rerun()
+
+        if st.button("Already have an account? Sign in", use_container_width=True):
+            st.session_state.page = "login"
+            st.rerun()
+
+    if st.button("← Back to Home", use_container_width=True):
+        st.session_state.page = "landing"
+        st.rerun()
+
+    st.markdown("</div></div>", unsafe_allow_html=True)
+
+
+# ============================================================
+# DASHBOARD SIDEBAR
+# ============================================================
+
+def dashboard_sidebar():
     with st.sidebar:
-        st.markdown('## 🔭 RepoLens AI');st.caption('Software Architecture Intelligence');st.divider()
-        st.markdown('**Signed in as**');st.caption(st.session_state.user)
-        if st.button('📊 Overview',use_container_width=True): st.session_state.tab='overview';st.rerun()
-        if st.button('🔍 Analyze Repository',use_container_width=True): st.session_state.tab='analyze';st.rerun()
-        if st.button('🕘 Analysis History',use_container_width=True): st.session_state.tab='history';st.rerun()
+        st.markdown("## 🔭 RepoLens AI")
+        st.caption("Software Architecture Intelligence")
         st.divider()
-        if st.button('🚪 Logout',use_container_width=True): st.session_state.authenticated=False;st.session_state.user='';st.session_state.page='landing';st.rerun()
 
-def results(arch,files):
-    comps=arch.get('components',[]);conns=arch.get('connections',[]);tech=arch.get('technologies',[]);sec=arch.get('security_findings',[]);flow=arch.get('data_flow',[])
-    st.markdown('<div class="section-title">📊 Architecture Overview</div>',unsafe_allow_html=True)
-    for col,(lab,val) in zip(st.columns(4),[('FILES',len(files)),('COMPONENTS',len(comps)),('CONNECTIONS',len(conns)),('SECURITY FINDINGS',len(sec))]):
-        with col: st.markdown(f'<div class="metric"><div class="metric-num">{val}</div><div class="metric-label">{lab}</div></div>',unsafe_allow_html=True)
-    st.markdown('<div class="section-title">🧩 Project Intelligence</div>',unsafe_allow_html=True);st.markdown(f'<div class="card"><b>Project Type</b><br><span class="muted">{arch.get("project_type","Unknown")}</span></div>',unsafe_allow_html=True)
-    if tech: st.markdown('<div class="section-title">⚙️ Technologies</div>',unsafe_allow_html=True);st.markdown('  '.join('`'+str(x)+'`' for x in tech))
-    st.markdown('<div class="section-title">🗺️ Visual Architecture</div>',unsafe_allow_html=True)
-    try: st.image(create_visual_architecture(arch),use_container_width=True)
-    except Exception as e: st.warning(f'Could not render diagram: {e}')
+        name = st.session_state.users.get(
+            st.session_state.user, {}
+        ).get("name", "Developer")
+
+        st.markdown(f"**{name}**")
+        st.caption(st.session_state.user)
+
+        st.write("")
+
+        if st.button("📊  Overview", use_container_width=True):
+            st.session_state.tab = "overview"
+            st.rerun()
+
+        if st.button("🔍  Analyze Repository", use_container_width=True):
+            st.session_state.tab = "analyze"
+            st.rerun()
+
+        if st.button("🕘  Analysis History", use_container_width=True):
+            st.session_state.tab = "history"
+            st.rerun()
+
+        st.divider()
+
+        if st.button("🚪  Logout", use_container_width=True):
+            st.session_state.authenticated = False
+            st.session_state.user = ""
+            st.session_state.page = "landing"
+            st.rerun()
+
+
+# ============================================================
+# RESULTS
+# ============================================================
+
+def show_results(arch, files):
+    comps = arch.get("components", [])
+    conns = arch.get("connections", [])
+    tech = arch.get("technologies", [])
+    sec = arch.get("security_findings", [])
+    flow = arch.get("data_flow", [])
+
+    st.markdown('<div class="section-kicker">ANALYSIS COMPLETE</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Architecture Overview</div>', unsafe_allow_html=True)
+
+    metrics = [
+        ("FILES", len(files)),
+        ("COMPONENTS", len(comps)),
+        ("CONNECTIONS", len(conns)),
+        ("SECURITY FINDINGS", len(sec)),
+    ]
+
+    cols = st.columns(4, gap="large")
+    for col, (label, value) in zip(cols, metrics):
+        with col:
+            st.markdown(
+                f"""
+                <div class="metric">
+                    <div class="metric-num">{value}</div>
+                    <div class="metric-label">{label}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    st.markdown('<div class="section-title" style="margin-top:34px">Project Intelligence</div>', unsafe_allow_html=True)
+
+    st.markdown(
+        f"""
+        <div class="result-card">
+            <b>Project Type</b><br>
+            <span class="muted">{arch.get("project_type", "Unknown")}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if tech:
+        st.markdown('<div class="section-title" style="margin-top:30px">⚙️ Technologies</div>', unsafe_allow_html=True)
+        st.markdown("  ".join(f"`{str(x)}`" for x in tech))
+
+    st.markdown('<div class="section-title" style="margin-top:30px">◈ Visual Architecture</div>', unsafe_allow_html=True)
+
+    try:
+        diagram = create_visual_architecture(arch)
+        st.image(diagram, use_container_width=True)
+    except Exception as e:
+        st.warning(f"Could not render diagram: {e}")
+
     if comps:
-        st.markdown('<div class="section-title">🧱 Components</div>',unsafe_allow_html=True)
-        for c in comps:
-            with st.expander(f'🔹 {c.get("name","Unknown")} · {c.get("type","Component")}'): st.write(c.get('description',''))
+        st.markdown('<div class="section-title" style="margin-top:30px">🧩 Components</div>', unsafe_allow_html=True)
+        for component in comps:
+            with st.expander(
+                f'🔹 {component.get("name", "Unknown")} · {component.get("type", "Component")}'
+            ):
+                st.write(component.get("description", ""))
+
     if flow:
-        st.markdown('<div class="section-title">🔄 Data Flow</div>',unsafe_allow_html=True)
-        for i,x in enumerate(flow,1): st.markdown(f'**{i}.** {x}')
-    st.markdown('<div class="section-title">🛡️ Security Intelligence</div>',unsafe_allow_html=True)
-    for x in sec: st.warning(str(x))
-    if not sec: st.success('No significant security findings were detected.')
+        st.markdown('<div class="section-title" style="margin-top:30px">↗ Data Flow</div>', unsafe_allow_html=True)
+        for i, item in enumerate(flow, 1):
+            st.markdown(f"**{i}.** {item}")
+
+    st.markdown('<div class="section-title" style="margin-top:30px">🛡 Security Intelligence</div>', unsafe_allow_html=True)
+
+    if sec:
+        for item in sec:
+            st.warning(str(item))
+    else:
+        st.success("No significant security findings were detected.")
+
+
+# ============================================================
+# DASHBOARD
+# ============================================================
 
 def dashboard():
-    sidebar()
-    if 'tab' not in st.session_state: st.session_state.tab='overview'
-    name=st.session_state.users.get(st.session_state.user,{}).get('name','Developer')
-    st.markdown(f'<div class="hero" style="padding:30px 36px"><span class="badge">REPOSITORY INTELLIGENCE</span><h1 style="font-size:42px">Welcome back, <span class="gradient">{name}</span></h1><div class="subtitle" style="font-size:15px">Understand your codebase. Visualize its architecture. Find what matters.</div></div>',unsafe_allow_html=True)
-    if st.session_state.tab=='overview':
-        st.markdown('## 📊 Dashboard');h=st.session_state.history
-        for col,(lab,val) in zip(st.columns(4),[('ANALYSES',len(h)),('REPOSITORIES',len({x['repo'] for x in h})),('COMPONENTS',sum(x['components'] for x in h)),('SECURITY FINDINGS',sum(x['security'] for x in h))]):
-            with col: st.markdown(f'<div class="metric"><div class="metric-num">{val}</div><div class="metric-label">{lab}</div></div>',unsafe_allow_html=True)
-        st.markdown('<div class="section-title">Quick Actions</div>',unsafe_allow_html=True)
-        if st.button('🚀 Analyze a Repository',use_container_width=True): st.session_state.tab='analyze';st.rerun()
-    elif st.session_state.tab=='history':
-        st.markdown('## 🕘 Analysis History')
-        if not st.session_state.history: st.info('No analyses yet.')
-        for x in reversed(st.session_state.history): st.markdown(f'<div class="card"><b>🔗 {x["repo"]}</b><br><span class="muted">{x["project_type"]} · {x["components"]} components · {x["security"]} security findings</span></div>',unsafe_allow_html=True)
+    dashboard_sidebar()
+
+    name = st.session_state.users.get(
+        st.session_state.user, {}
+    ).get("name", "Developer")
+
+    st.markdown(
+        f"""
+        <div class="dash-hero">
+            <div class="badge">REPOSITORY INTELLIGENCE WORKSPACE</div>
+            <h1 style="font-size:43px;letter-spacing:-2px;margin:17px 0 8px">
+                Welcome back, <span class="gradient">{name}</span>
+            </h1>
+            <div class="subtitle" style="font-size:15px">
+                Understand your codebase. Visualize its architecture. Find what matters.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    tab = st.session_state.get("tab", "overview")
+
+    if tab == "overview":
+        history = st.session_state.history
+
+        st.markdown('<div class="section-kicker">WORKSPACE</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">Dashboard Overview</div>', unsafe_allow_html=True)
+
+        repositories = len({item["repo"] for item in history})
+        components = sum(item["components"] for item in history)
+        security = sum(item["security"] for item in history)
+
+        cols = st.columns(4, gap="large")
+        values = [
+            ("ANALYSES", len(history)),
+            ("REPOSITORIES", repositories),
+            ("COMPONENTS", components),
+            ("SECURITY FINDINGS", security),
+        ]
+
+        for col, (label, value) in zip(cols, values):
+            with col:
+                st.markdown(
+                    f"""
+                    <div class="metric">
+                        <div class="metric-num">{value}</div>
+                        <div class="metric-label">{label}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+        st.markdown('<div class="panel">', unsafe_allow_html=True)
+        st.markdown("### 🚀 Quick Start")
+        st.markdown(
+            '<div class="muted">Paste a public GitHub repository and let RepoLens AI map its architecture.</div>',
+            unsafe_allow_html=True,
+        )
+        st.write("")
+
+        if st.button("🚀 Analyze a Repository", use_container_width=True):
+            st.session_state.tab = "analyze"
+            st.rerun()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        if history:
+            st.markdown("### Recent Analyses")
+            for item in reversed(history[-5:]):
+                st.markdown(
+                    f"""
+                    <div class="result-card" style="margin-bottom:10px">
+                        <b>🔗 {item["repo"]}</b><br>
+                        <span class="muted">
+                            {item["project_type"]} ·
+                            {item["components"]} components ·
+                            {item["security"]} security findings
+                        </span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+    elif tab == "history":
+        st.markdown('<div class="section-kicker">WORKSPACE</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">Analysis History</div>', unsafe_allow_html=True)
+
+        if not st.session_state.history:
+            st.info("No analyses yet. Analyze your first repository to build your history.")
+        else:
+            for item in reversed(st.session_state.history):
+                st.markdown(
+                    f"""
+                    <div class="result-card" style="margin-bottom:12px">
+                        <b>🔗 {item["repo"]}</b><br>
+                        <span class="muted">
+                            {item["project_type"]} ·
+                            {item["components"]} components ·
+                            {item["security"]} security findings
+                        </span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
     else:
-        st.markdown('## 🔍 Analyze Repository');url=st.text_input('GitHub Repository URL',value=st.session_state.repo_url,placeholder='https://github.com/username/repository')
-        if st.button('🚀 ANALYZE REPOSITORY',use_container_width=True):
-            if not url.strip(): st.warning('Please enter a GitHub repository URL.')
-            elif not client: st.error('GROQ_API_KEY is missing from Streamlit Secrets.')
+        st.markdown('<div class="section-kicker">AI ANALYZER</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">Analyze Repository</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-copy">Enter a public GitHub URL. RepoLens AI will scan the source and build its architecture intelligence.</div>',
+            unsafe_allow_html=True,
+        )
+
+        url = st.text_input(
+            "GitHub Repository URL",
+            value=st.session_state.repo_url,
+            placeholder="https://github.com/username/repository",
+            label_visibility="collapsed",
+        )
+
+        if st.button("🚀 ANALYZE REPOSITORY", use_container_width=True):
+            if not url.strip():
+                st.warning("Please enter a GitHub repository URL.")
+            elif not client:
+                st.error("GROQ_API_KEY is missing from Streamlit Secrets.")
             else:
                 try:
-                    with st.status('🔍 Analyzing repository...',expanded=True) as s:
-                        s.write('📥 Cloning repository...');path,err=clone_repository(url)
-                        if err: raise RuntimeError(err)
+                    with st.status("🔍 Analyzing repository...", expanded=True) as status:
+                        status.write("📥 Cloning repository...")
+                        path, err = clone_repository(url)
+
+                        if err:
+                            raise RuntimeError(err)
+
                         try:
-                            s.write('📂 Scanning files...');files=scan_repository(path)
-                            s.write('📄 Extracting source code...');code=extract_code(path,files)
-                            s.write('🤖 Groq AI analyzing architecture...');raw=analyze_architecture(code);arch=parse_architecture_result(raw)
-                        finally: shutil.rmtree(path,ignore_errors=True)
-                        s.update(label='✅ Analysis completed!',state='complete')
-                    st.session_state.repo_url=url.strip();st.session_state.files=files;st.session_state.architecture=arch;st.session_state.history.append({'repo':url.strip(),'project_type':arch.get('project_type','Unknown'),'components':len(arch.get('components',[])),'security':len(arch.get('security_findings',[]))})
-                except Exception as e: st.error(f'Analysis failed: {e}');st.code(traceback.format_exc())
-        if st.session_state.architecture: results(st.session_state.architecture,st.session_state.files)
+                            status.write("📂 Scanning files...")
+                            files = scan_repository(path)
 
-if st.session_state.page=='landing': landing()
-elif st.session_state.page=='login': auth('login')
-elif st.session_state.page=='signup': auth('signup')
-elif st.session_state.page=='dashboard':
-    if not st.session_state.authenticated: st.session_state.page='login';st.rerun()
+                            status.write("📄 Extracting source code...")
+                            code = extract_code(path, files)
+
+                            status.write("🤖 Groq AI analyzing architecture...")
+                            raw = analyze_architecture(code)
+                            arch = parse_architecture_result(raw)
+
+                            if not arch:
+                                raise RuntimeError("AI returned an invalid architecture response.")
+
+                        finally:
+                            shutil.rmtree(path, ignore_errors=True)
+
+                        status.update(
+                            label="✅ Analysis completed!",
+                            state="complete",
+                        )
+
+                    st.session_state.repo_url = url.strip()
+                    st.session_state.files = files
+                    st.session_state.architecture = arch
+
+                    st.session_state.history.append(
+                        {
+                            "repo": url.strip(),
+                            "project_type": arch.get("project_type", "Unknown"),
+                            "components": len(arch.get("components", [])),
+                            "security": len(arch.get("security_findings", [])),
+                        }
+                    )
+
+                except Exception as e:
+                    st.error(f"Analysis failed: {e}")
+                    st.code(traceback.format_exc())
+
+        if st.session_state.architecture:
+            show_results(
+                st.session_state.architecture,
+                st.session_state.files,
+            )
+
+
+# ============================================================
+# ROUTER
+# ============================================================
+
+if st.session_state.page == "landing":
+    landing()
+
+elif st.session_state.page == "login":
+    auth_page("login")
+
+elif st.session_state.page == "signup":
+    auth_page("signup")
+
+elif st.session_state.page == "dashboard":
+    if not st.session_state.authenticated:
+        st.session_state.page = "login"
+        st.rerun()
     dashboard()
-
-st.markdown('---');st.caption('RepoLens AI · See Your Codebase. Understand Its Architecture.')
