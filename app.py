@@ -17,7 +17,6 @@ except Exception:
     client = None
 
 from graphviz import Digraph
-from IPython.display import display
 
 
 # ============================================================
