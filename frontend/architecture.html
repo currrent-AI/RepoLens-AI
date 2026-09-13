@@ -283,22 +283,42 @@ function loadAnalysis(){
 }
 
 function renderAnalysis(data){
- const a=data.architecture||{};
- const technologies=safeArray(a.technologies);
- const components=safeArray(a.components);
- const relationships=safeArray(a.relationships||a.connections);
- const security=safeArray(a.security_findings);
- const dataFlow=safeArray(a.data_flow);
- const strengths=safeArray(a.strengths);
- const weaknesses=safeArray(a.weaknesses);
- const recommendations=safeArray(a.recommendations);
+  /*
+   * Backend returns the analysis fields at the top level:
+   * project_type, technologies, components, relationships, etc.
+   * Also support the older nested { architecture: {...} } format.
+   */
+  const a =
+    data.architecture &&
+    typeof data.architecture === "object" &&
+    !Array.isArray(data.architecture)
+      ? data.architecture
+      : data;
 
- document.getElementById("repoUrl").textContent=safeText(data.repository,"Unknown repository");
- document.getElementById("filesFound").textContent=data.files_found||0;
- document.getElementById("filesAnalyzed").textContent=data.files_analyzed||0;
- document.getElementById("componentCount").textContent=components.length;
- document.getElementById("technologyCount").textContent=technologies.length;
- document.getElementById("projectType").textContent=safeText(a.project_type,"Unknown project");
+  const technologies=safeArray(a.technologies);
+  const components=safeArray(a.components);
+  const relationships=safeArray(a.relationships||a.connections);
+  const security=safeArray(a.security_findings);
+  const dataFlow=safeArray(a.data_flow);
+  const strengths=safeArray(a.strengths);
+  const weaknesses=safeArray(a.weaknesses);
+  const recommendations=safeArray(a.recommendations);
+
+  const repository =
+    data.repository &&
+    typeof data.repository === "object"
+      ? data.repository.url
+      : data.repository;
+
+  document.getElementById("repoUrl").textContent=safeText(repository,"Unknown repository");
+  document.getElementById("filesFound").textContent=data.files_found||0;
+  document.getElementById("filesAnalyzed").textContent=data.files_analyzed||0;
+  document.getElementById("componentCount").textContent=components.length;
+  document.getElementById("technologyCount").textContent=technologies.length;
+  document.getElementById("projectType").textContent=safeText(
+    a.project_type || data.project_type,
+    "Unknown project"
+  );
 
  renderTechnologies(technologies);
  renderComponents(components);
