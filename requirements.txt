@@ -1,6 +1,5 @@
 fastapi
 uvicorn
-GitPython
 groq
 python-dotenv
 streamlit
