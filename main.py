@@ -11,6 +11,8 @@ from urllib.error import HTTPError, URLError
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from groq import Groq
 
@@ -37,6 +39,13 @@ MODEL_NAME = os.environ.get(
 
 
 # ============================================================
+# FRONTEND DIRECTORY
+# ============================================================
+
+FRONTEND_DIR = BASE_DIR / "frontend"
+
+
+# ============================================================
 # FASTAPI APP
 # ============================================================
 
@@ -56,7 +65,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
 
@@ -74,6 +83,18 @@ class AnalyzeRequest(BaseModel):
 
 @app.get("/")
 def root():
+    """
+    Serve RepoLens AI frontend on the main Vercel URL.
+    """
+
+    index_file = FRONTEND_DIR / "index.html"
+
+    if index_file.exists():
+        return FileResponse(
+            index_file,
+            media_type="text/html"
+        )
+
     return {
         "status": "online",
         "service": "RepoLens AI",
@@ -88,6 +109,114 @@ def health():
         "status": "healthy",
         "groq_configured": bool(GROQ_API_KEY)
     }
+
+
+# ============================================================
+# FRONTEND FILE ROUTES
+# ============================================================
+
+@app.get("/{page_name}.html")
+def frontend_page(page_name: str):
+    """
+    Serve frontend HTML pages such as:
+
+    /login.html
+    /signup.html
+    /dashboard.html
+    /architecture.html
+    /history.html
+    /settings.html
+    """
+
+    # Only allow safe filenames
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", page_name):
+        raise HTTPException(
+            status_code=404,
+            detail="Page not found."
+        )
+
+    page_file = FRONTEND_DIR / f"{page_name}.html"
+
+    if not page_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Page not found."
+        )
+
+    return FileResponse(
+        page_file,
+        media_type="text/html"
+    )
+
+
+# ============================================================
+# FRONTEND STATIC FILES
+# ============================================================
+
+# CSS
+@app.get("/style.css")
+def frontend_css():
+    css_file = FRONTEND_DIR / "style.css"
+
+    if not css_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="style.css not found."
+        )
+
+    return FileResponse(
+        css_file,
+        media_type="text/css"
+    )
+
+
+# JavaScript
+@app.get("/script.js")
+def frontend_js():
+    js_file = FRONTEND_DIR / "script.js"
+
+    if not js_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="script.js not found."
+        )
+
+    return FileResponse(
+        js_file,
+        media_type="application/javascript"
+    )
+
+
+# ============================================================
+# FRONTEND ASSETS
+# ============================================================
+
+@app.get("/assets/{file_name:path}")
+def frontend_asset(file_name: str):
+    """
+    Serve files from /assets folder.
+    """
+
+    asset_file = BASE_DIR / "assets" / file_name
+
+    # Security check
+    try:
+        asset_file.resolve().relative_to(
+            (BASE_DIR / "assets").resolve()
+        )
+    except ValueError:
+        raise HTTPException(
+            status_code=404,
+            detail="Asset not found."
+        )
+
+    if not asset_file.exists() or not asset_file.is_file():
+        raise HTTPException(
+            status_code=404,
+            detail="Asset not found."
+        )
+
+    return FileResponse(asset_file)
 
 
 # ============================================================
@@ -135,7 +264,7 @@ def download_github_repository(
 ) -> Path:
     """
     Download a public GitHub repository as a ZIP.
-    
+
     This replaces GitPython because Vercel does not provide
     a git executable inside the Python runtime.
     """
@@ -222,7 +351,8 @@ def download_github_repository(
 
     # GitHub ZIP contains one top-level directory
     folders = [
-        p for p in extract_dir.iterdir()
+        p
+        for p in extract_dir.iterdir()
         if p.is_dir()
     ]
 
@@ -316,7 +446,8 @@ def scan_repository(repo_path: Path) -> List[Path]:
 
         # Modify dirs in-place so ignored directories are skipped
         dirs[:] = [
-            d for d in dirs
+            d
+            for d in dirs
             if d not in IGNORED_DIRS
         ]
 
@@ -378,7 +509,10 @@ def extract_code(
 
         return 1
 
-    files_sorted = sorted(files, key=priority)
+    files_sorted = sorted(
+        files,
+        key=priority
+    )
 
     total_chars = 0
 
@@ -401,7 +535,9 @@ def extract_code(
             break
 
         # Keep individual files manageable
-        content = content[:min(4000, remaining)]
+        content = content[
+            :min(4000, remaining)
+        ]
 
         block = (
             f"\n\n"
@@ -411,6 +547,7 @@ def extract_code(
         )
 
         chunks.append(block)
+
         total_chars += len(block)
 
     return "".join(chunks)
@@ -420,9 +557,14 @@ def extract_code(
 # PROJECT METADATA
 # ============================================================
 
-def detect_project_type(files: List[Path]) -> str:
+def detect_project_type(
+    files: List[Path]
+) -> str:
 
-    names = {f.name.lower() for f in files}
+    names = {
+        f.name.lower()
+        for f in files
+    }
 
     extensions = {
         f.suffix.lower()
@@ -431,10 +573,18 @@ def detect_project_type(files: List[Path]) -> str:
 
     if "package.json" in names:
 
-        if ".tsx" in extensions or ".jsx" in extensions:
-            return "JavaScript/TypeScript web application"
+        if (
+            ".tsx" in extensions
+            or ".jsx" in extensions
+        ):
+            return (
+                "JavaScript/TypeScript "
+                "web application"
+            )
 
-        return "JavaScript/Node.js application"
+        return (
+            "JavaScript/Node.js application"
+        )
 
     if (
         "requirements.txt" in names
@@ -455,18 +605,30 @@ def detect_project_type(files: List[Path]) -> str:
     if ".rs" in extensions:
         return "Rust application"
 
-    if ".cpp" in extensions or ".c" in extensions:
+    if (
+        ".cpp" in extensions
+        or ".c" in extensions
+    ):
         return "C/C++ application"
 
     return "Software project"
 
 
-def detect_technologies(files: List[Path]) -> List[str]:
+def detect_technologies(
+    files: List[Path]
+) -> List[str]:
 
     technologies = []
 
-    names = {f.name.lower() for f in files}
-    extensions = {f.suffix.lower() for f in files}
+    names = {
+        f.name.lower()
+        for f in files
+    }
+
+    extensions = {
+        f.suffix.lower()
+        for f in files
+    }
 
     if ".py" in extensions:
         technologies.append("Python")
@@ -481,7 +643,9 @@ def detect_technologies(files: List[Path]) -> List[str]:
         technologies.append("TypeScript")
 
     if ".tsx" in extensions:
-        technologies.append("React + TypeScript")
+        technologies.append(
+            "React + TypeScript"
+        )
 
     if ".java" in extensions:
         technologies.append("Java")
@@ -496,13 +660,17 @@ def detect_technologies(files: List[Path]) -> List[str]:
         technologies.append("Node.js")
 
     if "requirements.txt" in names:
-        technologies.append("Python dependencies")
+        technologies.append(
+            "Python dependencies"
+        )
 
     if "dockerfile" in names:
         technologies.append("Docker")
 
     if "docker-compose.yml" in names:
-        technologies.append("Docker Compose")
+        technologies.append(
+            "Docker Compose"
+        )
 
     if ".sql" in extensions:
         technologies.append("SQL")
@@ -511,10 +679,14 @@ def detect_technologies(files: List[Path]) -> List[str]:
         technologies.append("Vue.js")
 
     if ".dart" in extensions:
-        technologies.append("Dart / Flutter")
+        technologies.append(
+            "Dart / Flutter"
+        )
 
     # Remove duplicates
-    return list(dict.fromkeys(technologies))
+    return list(
+        dict.fromkeys(technologies)
+    )
 
 
 # ============================================================
@@ -614,8 +786,9 @@ Rules:
             {
                 "role": "system",
                 "content": (
-                    "You are a senior software architect. "
-                    "Return strictly valid JSON."
+                    "You are a senior software "
+                    "architect. Return strictly "
+                    "valid JSON."
                 )
             },
             {
@@ -634,14 +807,18 @@ Rules:
             "Groq returned an empty response."
         )
 
-    return parse_architecture_result(content)
+    return parse_architecture_result(
+        content
+    )
 
 
 # ============================================================
 # ROBUST JSON PARSER
 # ============================================================
 
-def parse_architecture_result(text: str) -> Dict[str, Any]:
+def parse_architecture_result(
+    text: str
+) -> Dict[str, Any]:
 
     text = text.strip()
 
@@ -663,6 +840,7 @@ def parse_architecture_result(text: str) -> Dict[str, Any]:
 
     # First attempt
     try:
+
         result = json.loads(text)
 
         if isinstance(result, dict):
@@ -682,6 +860,7 @@ def parse_architecture_result(text: str) -> Dict[str, Any]:
     decoder = json.JSONDecoder()
 
     try:
+
         result, _ = decoder.raw_decode(
             text[start:]
         )
@@ -690,6 +869,7 @@ def parse_architecture_result(text: str) -> Dict[str, Any]:
             return result
 
     except Exception as e:
+
         raise RuntimeError(
             f"Could not parse AI architecture JSON: {e}"
         )
@@ -727,13 +907,22 @@ def normalize_components(value):
 
             result.append({
                 "name": str(
-                    item.get("name", "Unknown")
+                    item.get(
+                        "name",
+                        "Unknown"
+                    )
                 ),
                 "type": str(
-                    item.get("type", "Component")
+                    item.get(
+                        "type",
+                        "Component"
+                    )
                 ),
                 "description": str(
-                    item.get("description", "")
+                    item.get(
+                        "description",
+                        ""
+                    )
                 )
             })
 
@@ -762,13 +951,22 @@ def normalize_relationships(value):
 
         result.append({
             "from": str(
-                item.get("from", "")
+                item.get(
+                    "from",
+                    ""
+                )
             ),
             "to": str(
-                item.get("to", "")
+                item.get(
+                    "to",
+                    ""
+                )
             ),
             "label": str(
-                item.get("label", "uses")
+                item.get(
+                    "label",
+                    "uses"
+                )
             )
         })
 
@@ -788,13 +986,22 @@ def normalize_security(value):
 
             result.append({
                 "severity": str(
-                    item.get("severity", "Info")
+                    item.get(
+                        "severity",
+                        "Info"
+                    )
                 ),
                 "title": str(
-                    item.get("title", "Finding")
+                    item.get(
+                        "title",
+                        "Finding"
+                    )
                 ),
                 "description": str(
-                    item.get("description", "")
+                    item.get(
+                        "description",
+                        ""
+                    )
                 )
             })
 
@@ -833,46 +1040,74 @@ def create_visual_architecture(
     width = 1100
 
     if not components:
+
         return f"""
         <svg xmlns="http://www.w3.org/2000/svg"
              width="{width}"
              height="500"
              viewBox="0 0 {width} 500">
-            <rect width="100%" height="100%"
+
+            <rect width="100%"
+                  height="100%"
                   fill="#080F1E"/>
-            <text x="550" y="250"
+
+            <text x="550"
+                  y="250"
                   text-anchor="middle"
                   fill="#8FA4BD"
                   font-size="22">
+
                 No architecture components detected
+
             </text>
+
         </svg>
         """
 
     count = len(components)
 
     cols = 3
-    rows = (count + cols - 1) // cols
+
+    rows = (
+        (count + cols - 1)
+        // cols
+    )
 
     box_width = 280
     box_height = 110
+
     gap_x = 70
     gap_y = 80
 
     height = max(
         500,
-        100 + rows * (box_height + gap_y)
+        100 + rows * (
+            box_height + gap_y
+        )
     )
 
     positions = {}
 
-    for index, component in enumerate(components):
+    for index, component in enumerate(
+        components
+    ):
 
         row = index // cols
         col = index % cols
 
-        x = 60 + col * (box_width + gap_x)
-        y = 60 + row * (box_height + gap_y)
+        x = (
+            60
+            + col * (
+                box_width + gap_x
+            )
+        )
+
+        y = (
+            60
+            + row * (
+                box_height + gap_y
+            )
+        )
 
         name = component["name"]
 
@@ -922,7 +1157,9 @@ def create_visual_architecture(
             font-size="18"
             font-family="Arial"
             font-weight="bold">
+
             Repository Architecture
+
         </text>
         """
     )
@@ -931,11 +1168,17 @@ def create_visual_architecture(
     for relation in relationships:
 
         source = str(
-            relation.get("from", "")
+            relation.get(
+                "from",
+                ""
+            )
         ).lower()
 
         target = str(
-            relation.get("to", "")
+            relation.get(
+                "to",
+                ""
+            )
         ).lower()
 
         if (
@@ -947,14 +1190,31 @@ def create_visual_architecture(
         sx, sy = positions[source]
         tx, ty = positions[target]
 
-        x1 = sx + box_width / 2
-        y1 = sy + box_height / 2
+        x1 = (
+            sx
+            + box_width / 2
+        )
 
-        x2 = tx + box_width / 2
-        y2 = ty + box_height / 2
+        y1 = (
+            sy
+            + box_height / 2
+        )
+
+        x2 = (
+            tx
+            + box_width / 2
+        )
+
+        y2 = (
+            ty
+            + box_height / 2
+        )
 
         label = escape_svg(
-            relation.get("label", "uses")
+            relation.get(
+                "label",
+                "uses"
+            )
         )
 
         svg.append(
@@ -976,7 +1236,9 @@ def create_visual_architecture(
                 fill="#8FA4BD"
                 font-size="12"
                 font-family="Arial">
+
                 {label}
+
             </text>
             """
         )
@@ -985,11 +1247,17 @@ def create_visual_architecture(
     for component in components:
 
         name = escape_svg(
-            component.get("name", "Component")
+            component.get(
+                "name",
+                "Component"
+            )
         )
 
         component_type = escape_svg(
-            component.get("type", "Component")
+            component.get(
+                "type",
+                "Component"
+            )
         )
 
         x, y = positions[
@@ -1023,7 +1291,9 @@ def create_visual_architecture(
                 font-size="17"
                 font-family="Arial"
                 font-weight="bold">
+
                 {name[:28]}
+
             </text>
 
             <text
@@ -1032,7 +1302,9 @@ def create_visual_architecture(
                 fill="#8FA4BD"
                 font-size="13"
                 font-family="Arial">
+
                 {component_type[:35]}
+
             </text>
             """
         )
@@ -1047,26 +1319,40 @@ def create_visual_architecture(
 # ============================================================
 
 @app.post("/analyze")
-def analyze_repository(request: AnalyzeRequest):
+def analyze_repository(
+    request: AnalyzeRequest
+):
 
     github_url = request.github_url.strip()
 
     if not github_url:
+
         raise HTTPException(
             status_code=400,
-            detail="GitHub repository URL is required."
+            detail=(
+                "GitHub repository URL "
+                "is required."
+            )
         )
 
     if "github.com/" not in github_url.lower():
+
         raise HTTPException(
             status_code=400,
-            detail="Please provide a valid GitHub repository URL."
+            detail=(
+                "Please provide a valid "
+                "GitHub repository URL."
+            )
         )
 
     if not GROQ_API_KEY:
+
         raise HTTPException(
             status_code=500,
-            detail="GROQ_API_KEY is not configured on the server."
+            detail=(
+                "GROQ_API_KEY is not "
+                "configured on the server."
+            )
         )
 
     temp_dir = Path(
@@ -1099,8 +1385,9 @@ def analyze_repository(request: AnalyzeRequest):
             raise HTTPException(
                 status_code=400,
                 detail=(
-                    "No supported source files were found "
-                    "in this repository."
+                    "No supported source "
+                    "files were found in "
+                    "this repository."
                 )
             )
 
@@ -1141,15 +1428,24 @@ def analyze_repository(request: AnalyzeRequest):
         # ----------------------------------------------------
 
         components = normalize_components(
-            architecture.get("components", [])
+            architecture.get(
+                "components",
+                []
+            )
         )
 
         relationships = normalize_relationships(
-            architecture.get("relationships", [])
+            architecture.get(
+                "relationships",
+                []
+            )
         )
 
         data_flow = normalize_list(
-            architecture.get("data_flow", [])
+            architecture.get(
+                "data_flow",
+                []
+            )
         )
 
         security_findings = normalize_security(
@@ -1199,12 +1495,17 @@ def analyze_repository(request: AnalyzeRequest):
 
             "repository": {
                 "url": github_url,
-                "name": github_url.rstrip("/").split("/")[-1]
+                "name": (
+                    github_url
+                    .rstrip("/")
+                    .split("/")[-1]
+                )
             },
 
             "files_found": len(files),
 
-            # Number of source files included in AI context
+            # Number of source files
+            # included in AI context
             "files_analyzed": len(
                 code_context.split(
                     "===== FILE:"
@@ -1233,13 +1534,17 @@ def analyze_repository(request: AnalyzeRequest):
 
             "data_flow": data_flow,
 
-            "security_findings": security_findings,
+            "security_findings": (
+                security_findings
+            ),
 
             "strengths": strengths,
 
             "weaknesses": weaknesses,
 
-            "recommendations": recommendations,
+            "recommendations": (
+                recommendations
+            ),
 
             "graph_svg": graph_svg
         }
@@ -1259,7 +1564,8 @@ def analyze_repository(request: AnalyzeRequest):
     except Exception as e:
 
         print(
-            f"RepoLens analysis error: {type(e).__name__}: {e}"
+            "RepoLens analysis error: "
+            f"{type(e).__name__}: {e}"
         )
 
         raise HTTPException(
@@ -1274,10 +1580,12 @@ def analyze_repository(request: AnalyzeRequest):
 
         # Cleanup temporary files
         try:
+
             shutil.rmtree(
                 temp_dir,
                 ignore_errors=True
             )
+
         except Exception:
             pass
 
