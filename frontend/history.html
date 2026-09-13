@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History — RepoLens AI</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #070d1a;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: #080d1a;
+            border-right: 1px solid #1d304d;
+            padding: 24px 18px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px 28px;
+            border-bottom: 1px solid #1d304d;
+        }
+
+        .brand img {
+            width: 62px;
+            height: 62px;
+            object-fit: contain;
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .brand-sub {
+            color: #8fa4c7;
+            font-size: 12px;
+            letter-spacing: 3px;
+            margin-top: 7px;
+        }
+
+        .section-title {
+            color: #5d82b6;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin: 34px 12px 14px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 15px 16px;
+            margin-bottom: 7px;
+            border-radius: 14px;
+            color: #91acd5;
+            text-decoration: none;
+            font-size: 16px;
+            transition: .2s;
+        }
+
+        .nav-item:hover {
+            background: #0e1b31;
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #0e1d35;
+            border: 1px solid #28568d;
+            color: white;
+        }
+
+        .icon {
+            width: 20px;
+            text-align: center;
+            color: #4da3ff;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 86px;
+            border-bottom: 1px solid #1d304d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 38px;
+            background: #080f1e;
+        }
+
+        .topbar h1 {
+            font-size: 30px;
+        }
+
+        .status {
+            color: #9bb0d0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 15px #22c55e;
+        }
+
+        .content {
+            padding: 42px;
+            max-width: 1500px;
+        }
+
+        .eyebrow {
+            color: #4da3ff;
+            font-size: 12px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .page-title {
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            color: #7892b9;
+            margin-bottom: 35px;
+        }
+
+        /* CARD */
+        .history-card {
+            background: #111c31;
+            border: 1px solid #203b60;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 24px 28px;
+            border-bottom: 1px solid #20324e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+        }
+
+        .count {
+            color: #78aef0;
+            font-size: 14px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-item {
+            padding: 22px 28px;
+            border-bottom: 1px solid #1d304d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            transition: .2s;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:hover {
+            background: #14223a;
+        }
+
+        .repo-info {
+            display: flex;
+            align-items: center;
+            gap: 17px;
+            min-width: 0;
+        }
+
+        .repo-icon {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #28568d;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4da3ff;
+            background: #091426;
+            font-size: 21px;
+            flex-shrink: 0;
+        }
+
+        .repo-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 7px;
+        }
+
+        .repo-url {
+            color: #6585b4;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .repo-date {
+            color: #7892b9;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            background: rgba(34, 197, 94, .12);
+            border: 1px solid rgba(34, 197, 94, .18);
+            color: #22c55e;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .view-btn {
+            border: 1px solid #28568d;
+            background: #0b172a;
+            color: #69adff;
+            padding: 9px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .view-btn:hover {
+            background: #142946;
+        }
+
+        .empty {
+            padding: 70px 30px;
+            text-align: center;
+            color: #6f88ae;
+        }
+
+        .empty-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        .empty h3 {
+            color: #dce8f7;
+            margin-bottom: 8px;
+        }
+
+        .analyze-btn {
+            display: inline-block;
+            margin-top: 22px;
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: white;
+            text-decoration: none;
+            padding: 12px 22px;
+            border-radius: 11px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 220px;
+            }
+
+            .main {
+                margin-left: 220px;
+                width: calc(100% - 220px);
+            }
+
+            .content {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .layout {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .topbar {
+                padding: 20px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .history-item {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <img src="../assets/repolens_logo.png" alt="RepoLens AI">
+
+            <div>
+                <div class="brand-name">
+                    RepoLens AI
+                </div>
+
+                <div class="brand-sub">
+                    CODE<br>INTELLIGENCE
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">WORKSPACE</div>
+
+        <a class="nav-item" href="dashboard.html">
+            <span class="icon">◇</span>
+            Dashboard
+        </a>
+
+        <a class="nav-item" href="dashboard.html#analyzer">
+            <span class="icon">⌁</span>
+            Analyze Repository
+        </a>
+
+        <a class="nav-item" href="architecture.html">
+            <span class="icon">◈</span>
+            Architecture
+        </a>
+
+        <a class="nav-item active" href="history.html">
+            <span class="icon">◯</span>
+            History
+        </a>
+
+        <div class="section-title">ACCOUNT</div>
+
+        <a class="nav-item" href="#">
+            <span class="icon">⚙</span>
+            Settings
+        </a>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="topbar">
+            <h1>History</h1>
+
+            <div class="status">
+                <span class="status-dot"></span>
+                AI Engine Ready
+            </div>
+        </header>
+
+
+        <section class="content">
+
+            <div class="eyebrow">
+                REPOSITORY ANALYSIS
+            </div>
+
+            <h2 class="page-title">
+                Analysis History
+            </h2>
+
+            <p class="description">
+                View repositories you have previously analyzed with RepoLens AI.
+            </p>
+
+
+            <div class="history-card">
+
+                <div class="card-header">
+                    <h2>Previous Analyses</h2>
+                    <span class="count" id="historyCount">
+                        0 analyses
+                    </span>
+                </div>
+
+                <div class="history-list" id="historyList"></div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    // -----------------------------------------
+    // AUTH CHECK
+    // -----------------------------------------
+
+    const currentUser =
+        JSON.parse(
+            localStorage.getItem("repolens_current_user") || "null"
+        );
+
+    if (!currentUser) {
+        window.location.href = "login.html";
+    }
+
+
+    // -----------------------------------------
+    // LOAD HISTORY
+    // -----------------------------------------
+
+    function loadHistory() {
+
+        const historyList =
+            document.getElementById("historyList");
+
+        const historyCount =
+            document.getElementById("historyCount");
+
+        let analyses =
+            JSON.parse(
+                localStorage.getItem("repolens_analyses") || "[]"
+            );
+
+
+        historyCount.textContent =
+            `${analyses.length} ${analyses.length === 1 ? "analysis" : "analyses"}`;
+
+
+        if (analyses.length === 0) {
+
+            historyList.innerHTML = `
+                <div class="empty">
+
+                    <div class="empty-icon">◈</div>
+
+                    <h3>No analyses yet</h3>
+
+                    <p>
+                        Analyze a GitHub repository and your analysis
+                        will appear here.
+                    </p>
+
+                    <a href="dashboard.html#analyzer" class="analyze-btn">
+                        Analyze Repository →
+                    </a>
+
+                </div>
+            `;
+
+            return;
+        }
+
+
+        historyList.innerHTML = "";
+
+
+        analyses.forEach((analysis, index) => {
+
+            const url = analysis.url || "";
+
+            let repoName =
+                analysis.name ||
+                url
+                    .replace("https://github.com/", "")
+                    .replace("http://github.com/", "");
+
+
+            const item =
+                document.createElement("div");
+
+            item.className = "history-item";
+
+
+            item.innerHTML = `
+
+                <div class="repo-info">
+
+                    <div class="repo-icon">
+                        ◈
+                    </div>
+
+                    <div>
+
+                        <div class="repo-name">
+                            ${escapeHtml(repoName)}
+                        </div>
+
+                        <div class="repo-url">
+                            ${escapeHtml(url)}
+                        </div>
+
+                        <div class="repo-date">
+                            ${escapeHtml(
+                                analysis.date || "Recently analyzed"
+                            )}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="actions">
+
+                    <span class="badge">
+                        Analyzed
+                    </span>
+
+                    <button
+                        class="view-btn"
+                        onclick="viewAnalysis(${index})">
+                        View
+                    </button>
+
+                </div>
+            `;
+
+
+            historyList.appendChild(item);
+
+        });
+
+    }
+
+
+    // -----------------------------------------
+    // VIEW ANALYSIS
+    // -----------------------------------------
+
+    function viewAnalysis(index) {
+
+        const analyses =
+            JSON.parse(
+                localStorage.getItem("repolens_analyses") || "[]"
+            );
+
+        const selected = analyses[index];
+
+        if (!selected) {
+            alert("Analysis not found.");
+            return;
+        }
+
+
+        const lastAnalysis =
+            JSON.parse(
+                localStorage.getItem("repolens_last_analysis") || "null"
+            );
+
+
+        if (
+            lastAnalysis &&
+            lastAnalysis.repository === selected.url
+        ) {
+
+            window.location.href =
+                "architecture.html";
+
+            return;
+        }
+
+
+        alert(
+            "This repository is in history, but its detailed architecture result is not stored locally anymore."
+        );
+
+    }
+
+
+    // -----------------------------------------
+    // SAFE HTML
+    // -----------------------------------------
+
+    function escapeHtml(value) {
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    // -----------------------------------------
+    // START
+    // -----------------------------------------
+
+    loadHistory();
+
+</script>
+
+</body>
+</html>

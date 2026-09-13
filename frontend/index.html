@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+        content="RepoLens AI - AI-powered software architecture analyzer">
+
+    <meta name="theme-color"
+        content="#080f1e">
+
+    <title>RepoLens AI — Understand Your Architecture</title>
+
+    <link rel="stylesheet"
+        href="style.css">
+
+        <link rel="icon" href="data:,">
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         BACKGROUND
+         ===================================================== -->
+
+    <div class="background-grid"></div>
+
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <div class="ambient ambient-three"></div>
+
+
+    <!-- =====================================================
+         NAVBAR
+         ===================================================== -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <a href="#home"
+                class="brand">
+
+                <div class="brand-logo">
+                    RL
+                </div>
+
+                <div class="brand-text">
+                    <strong>RepoLens</strong>
+                    <span>AI</span>
+                </div>
+
+            </a>
+
+
+            <nav class="nav-links">
+
+                <a href="#home"
+                    class="active">
+                    Home
+                </a>
+
+                <a href="#features">
+                    Features
+                </a>
+
+                <a href="#how-it-works">
+                    How It Works
+                </a>
+
+            </nav>
+
+
+            <div class="nav-actions">
+
+                <button
+                    class="nav-btn sign-in-btn"
+                    data-action="sign-in">
+                    Sign In
+                </button>
+
+                <button
+                    class="nav-btn nav-primary get-started-btn"
+                    data-action="get-started">
+                    Get Started
+                </button>
+
+            </div>
+
+
+            <button class="mobile-menu-btn"
+                aria-label="Open menu">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
+
+    <main>
+
+        <section id="home"
+            class="hero">
+
+            <div class="hero-container">
+
+
+                <!-- LEFT -->
+
+                <div class="hero-content">
+
+                    <div class="status-badge">
+
+                        <span class="status-dot"></span>
+
+                        AI-Powered Code Intelligence
+
+                    </div>
+
+
+                    <h1>
+
+                        See Your Codebase.
+
+                        <br>
+
+                        <span class="gradient-text">
+                            Understand Its Architecture.
+                        </span>
+
+                    </h1>
+
+
+                    <p class="hero-description">
+
+                        RepoLens AI analyzes your GitHub repository,
+                        understands its code structure, and transforms
+                        complex codebases into clear visual architecture.
+
+                    </p>
+
+
+                    <div class="hero-actions">
+
+                        <button
+                            class="btn btn-primary get-started-btn"
+                            data-action="get-started">
+
+                            <span>
+                                Analyze Repository
+                            </span>
+
+                            <span class="arrow">
+                                →
+                            </span>
+
+                        </button>
+
+
+                        <a href="#how-it-works"
+                            class="btn btn-secondary">
+
+                            See How It Works
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="hero-trust">
+
+                        <div class="trust-item">
+
+                            <span class="trust-icon">
+                                ✓
+                            </span>
+
+                            No manual code reading
+
+                        </div>
+
+                        <div class="trust-item">
+
+                            <span class="trust-icon">
+                                ✓
+                            </span>
+
+                            AI-powered analysis
+
+                        </div>
+
+                        <div class="trust-item">
+
+                            <span class="trust-icon">
+                                ✓
+                            </span>
+
+                            Visual architecture
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RIGHT ARCHITECTURE PREVIEW -->
+
+                <div class="hero-visual">
+
+                    <div class="hero-glow"></div>
+
+
+                    <div class="architecture-preview">
+
+                        <div class="window-top">
+
+                            <div class="window-dots">
+
+                                <span></span>
+                                <span></span>
+                                <span></span>
+
+                            </div>
+
+                            <span class="window-title">
+                                RepoLens AI
+                            </span>
+
+                            <span class="live-label">
+                                LIVE
+                            </span>
+
+                        </div>
+
+
+                        <div class="architecture-body">
+
+                            <div class="scan-header">
+
+                                <div>
+
+                                    <span class="small-label">
+                                        REPOSITORY
+                                    </span>
+
+                                    <strong>
+                                        github.com/project/app
+                                    </strong>
+
+                                </div>
+
+                                <div class="scan-status">
+                                    ANALYZING
+                                </div>
+
+                            </div>
+
+
+                            <div class="architecture-map">
+
+
+                                <div class="arch-column">
+
+                                    <div class="arch-node node-blue">
+
+                                        <span class="node-icon">
+                                            ◈
+                                        </span>
+
+                                        <div>
+                                            <strong>
+                                                Frontend
+                                            </strong>
+
+                                            <small>
+                                                React / UI
+                                            </small>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="arch-node node-purple">
+
+                                        <span class="node-icon">
+                                            ◇
+                                        </span>
+
+                                        <div>
+                                            <strong>
+                                                Components
+                                            </strong>
+
+                                            <small>
+                                                24 modules
+                                            </small>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="connector-column">
+
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+
+                                </div>
+
+
+                                <div class="arch-column center-column">
+
+                                    <div class="arch-node node-main">
+
+                                        <div class="ai-ring">
+
+                                            <span>
+                                                AI
+                                            </span>
+
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                Architecture
+                                                Engine
+                                            </strong>
+
+                                            <small>
+                                                AI Analysis
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="connector-column">
+
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+
+                                </div>
+
+
+                                <div class="arch-column">
+
+                                    <div class="arch-node node-green">
+
+                                        <span class="node-icon">
+                                            ◉
+                                        </span>
+
+                                        <div>
+
+                                            <strong>
+                                                Backend
+                                            </strong>
+
+                                            <small>
+                                                Node / API
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="arch-node node-orange">
+
+                                        <span class="node-icon">
+                                            ◫
+                                        </span>
+
+                                        <div>
+
+                                            <strong>
+                                                Database
+                                            </strong>
+
+                                            <small>
+                                                MongoDB
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="analysis-footer">
+
+                                <div class="analysis-item">
+
+                                    <strong>
+                                        95
+                                    </strong>
+
+                                    <span>
+                                        Files
+                                    </span>
+
+                                </div>
+
+
+                                <div class="analysis-item">
+
+                                    <strong>
+                                        24
+                                    </strong>
+
+                                    <span>
+                                        Components
+                                    </span>
+
+                                </div>
+
+
+                                <div class="analysis-item">
+
+                                    <strong>
+                                        9
+                                    </strong>
+
+                                    <span>
+                                        Services
+                                    </span>
+
+                                </div>
+
+
+                                <div class="analysis-item">
+
+                                    <strong>
+                                        3
+                                    </strong>
+
+                                    <span>
+                                        Findings
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURES
+             ================================================= -->
+
+        <section id="features"
+            class="section features-section">
+
+            <div class="section-container">
+
+
+                <div class="section-heading">
+
+                    <div class="section-eyebrow">
+                        POWERFUL ANALYSIS
+                    </div>
+
+                    <h2>
+                        Everything you need to
+                        <span>understand your code.</span>
+                    </h2>
+
+                    <p>
+                        RepoLens AI turns a complex repository
+                        into a structured, understandable
+                        software architecture.
+                    </p>
+
+                </div>
+
+
+                <div class="features-grid">
+
+
+                    <!-- FEATURE 1 -->
+
+                    <article class="feature-card">
+
+                        <div class="feature-icon blue">
+                            ◈
+                        </div>
+
+                        <div class="feature-number">
+                            01
+                        </div>
+
+                        <h3>
+                            AI Code Analysis
+                        </h3>
+
+                        <p>
+                            Analyze source code using AI to
+                            understand modules, components,
+                            services, and their relationships.
+                        </p>
+
+                        <div class="feature-link">
+                            Intelligent analysis →
+                        </div>
+
+                    </article>
+
+
+                    <!-- FEATURE 2 -->
+
+                    <article class="feature-card">
+
+                        <div class="feature-icon purple">
+                            ◇
+                        </div>
+
+                        <div class="feature-number">
+                            02
+                        </div>
+
+                        <h3>
+                            Architecture Mapping
+                        </h3>
+
+                        <p>
+                            Automatically transform your
+                            repository structure into a
+                            visual software architecture.
+                        </p>
+
+                        <div class="feature-link">
+                            Visual understanding →
+                        </div>
+
+                    </article>
+
+
+                    <!-- FEATURE 3 -->
+
+                    <article class="feature-card">
+
+                        <div class="feature-icon green">
+                            ◉
+                        </div>
+
+                        <div class="feature-number">
+                            03
+                        </div>
+
+                        <h3>
+                            Security Insights
+                        </h3>
+
+                        <p>
+                            Identify important security
+                            findings and potential risks
+                            hidden inside your codebase.
+                        </p>
+
+                        <div class="feature-link">
+                            Detect risks →
+                        </div>
+
+                    </article>
+
+
+                    <!-- FEATURE 4 -->
+
+                    <article class="feature-card">
+
+                        <div class="feature-icon orange">
+                            ⌘
+                        </div>
+
+                        <div class="feature-number">
+                            04
+                        </div>
+
+                        <h3>
+                            Data Flow
+                        </h3>
+
+                        <p>
+                            Understand how data moves between
+                            frontend, backend, APIs and databases.
+                        </p>
+
+                        <div class="feature-link">
+                            Trace dependencies →
+                        </div>
+
+                    </article>
+
+
+                    <!-- FEATURE 5 -->
+
+                    <article class="feature-card">
+
+                        <div class="feature-icon cyan">
+                            ◎
+                        </div>
+
+                        <div class="feature-number">
+                            05
+                        </div>
+
+                        <h3>
+                            Repository Intelligence
+                        </h3>
+
+                        <p>
+                            Scan repositories automatically and
+                            extract the most relevant source files
+                            for analysis.
+                        </p>
+
+                        <div class="feature-link">
+                            Scan smarter →
+                        </div>
+
+                    </article>
+
+
+                    <!-- FEATURE 6 -->
+
+                    <article class="feature-card">
+
+                        <div class="feature-icon red">
+                            ⚡
+                        </div>
+
+                        <div class="feature-number">
+                            06
+                        </div>
+
+                        <h3>
+                            Fast Insights
+                        </h3>
+
+                        <p>
+                            Go from a GitHub repository to
+                            actionable architecture insights
+                            in seconds.
+                        </p>
+
+                        <div class="feature-link">
+                            Start analyzing →
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             HOW IT WORKS
+             ================================================= -->
+
+        <section id="how-it-works"
+            class="section workflow-section">
+
+            <div class="section-container">
+
+
+                <div class="section-heading">
+
+                    <div class="section-eyebrow">
+                        SIMPLE WORKFLOW
+                    </div>
+
+                    <h2>
+                        From repository to
+                        <span>architecture.</span>
+                    </h2>
+
+                    <p>
+                        Four simple stages turn your source code
+                        into an understandable architecture.
+                    </p>
+
+                </div>
+
+
+                <div class="workflow">
+
+
+                    <div class="workflow-line"></div>
+
+
+                    <div class="workflow-step">
+
+                        <div class="step-number">
+                            01
+                        </div>
+
+                        <div class="step-icon">
+                            ↗
+                        </div>
+
+                        <h3>
+                            Connect
+                        </h3>
+
+                        <p>
+                            Provide your GitHub repository URL.
+                        </p>
+
+                    </div>
+
+
+                    <div class="workflow-step">
+
+                        <div class="step-number">
+                            02
+                        </div>
+
+                        <div class="step-icon">
+                            ◫
+                        </div>
+
+                        <h3>
+                            Scan
+                        </h3>
+
+                        <p>
+                            RepoLens scans and extracts
+                            relevant source files.
+                        </p>
+
+                    </div>
+
+
+                    <div class="workflow-step">
+
+                        <div class="step-number">
+                            03
+                        </div>
+
+                        <div class="step-icon">
+                            ✦
+                        </div>
+
+                        <h3>
+                            Analyze
+                        </h3>
+
+                        <p>
+                            AI understands the codebase
+                            and its relationships.
+                        </p>
+
+                    </div>
+
+
+                    <div class="workflow-step">
+
+                        <div class="step-number">
+                            04
+                        </div>
+
+                        <div class="step-icon">
+                            ◎
+                        </div>
+
+                        <h3>
+                            Visualize
+                        </h3>
+
+                        <p>
+                            Get a clear visual architecture
+                            and actionable insights.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ANALYZER
+             ================================================= -->
+
+        <section id="analyzer"
+            class="section analyzer-section">
+
+            <div class="section-container">
+
+                <div class="analyzer-card">
+
+
+                    <div class="analyzer-content">
+
+                        <div class="section-eyebrow">
+                            START ANALYSIS
+                        </div>
+
+                        <h2>
+                            Understand your
+                            <span>codebase.</span>
+                        </h2>
+
+                        <p>
+                            Paste a public GitHub repository
+                            URL and let RepoLens AI map its
+                            architecture.
+                        </p>
+
+
+                        <div class="repo-input-group">
+
+                            <div class="input-wrapper">
+
+                                <span class="input-icon">
+                                    ↗
+                                </span>
+
+                                <input
+                                    id="repo-url"
+                                    class="repo-url-input"
+                                    type="url"
+                                    placeholder="https://github.com/username/repository"
+                                    autocomplete="off">
+
+                            </div>
+
+
+                            <button
+                                id="analyze-btn"
+                                class="btn btn-primary analyze-btn">
+
+                                Analyze Repository
+
+                                <span>
+                                    →
+                                </span>
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="input-note">
+
+                            <span>🔒</span>
+
+                            Your repository URL is only used
+                            for architecture analysis.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="analyzer-decoration">
+
+                        <div class="decoration-ring ring-one"></div>
+                        <div class="decoration-ring ring-two"></div>
+                        <div class="decoration-ring ring-three"></div>
+
+                        <div class="decoration-core">
+                            AI
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CTA
+             ================================================= -->
+
+        <section class="cta-section">
+
+            <div class="section-container">
+
+                <div class="cta-box">
+
+                    <div class="cta-glow"></div>
+
+                    <div class="cta-content">
+
+                        <div class="section-eyebrow">
+                            REPO LENS AI
+                        </div>
+
+                        <h2>
+                            Your codebase is complex.
+                            <br>
+                            <span>
+                                Understanding it shouldn't be.
+                            </span>
+                        </h2>
+
+                        <p>
+                            Turn your repository into a
+                            visual map of your software architecture.
+                        </p>
+
+
+                        <button
+                            class="btn btn-primary get-started-btn"
+                            data-action="get-started">
+
+                            Start Analyzing
+
+                            <span>
+                                →
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="footer">
+
+        <div class="footer-container">
+
+
+            <div class="footer-brand">
+
+                <a href="#home"
+                    class="brand">
+
+                    <div class="brand-logo">
+                        RL
+                    </div>
+
+                    <div class="brand-text">
+                        <strong>RepoLens</strong>
+                        <span>AI</span>
+                    </div>
+
+                </a>
+
+                <p>
+                    See Your Codebase.
+                    Understand Its Architecture.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <div>
+
+                    <span class="footer-title">
+                        PRODUCT
+                    </span>
+
+                    <a href="#features">
+                        Features
+                    </a>
+
+                    <a href="#how-it-works">
+                        How It Works
+                    </a>
+
+                    <a href="#analyzer">
+                        Analyzer
+                    </a>
+
+                </div>
+
+
+                <div>
+
+                    <span class="footer-title">
+                        PLATFORM
+                    </span>
+
+                    <a href="#home">
+                        Home
+                    </a>
+
+                    <a href="#">
+                        Sign In
+                    </a>
+
+                    <a href="#">
+                        Get Started
+                    </a>
+
+                </div>
+
+
+                <div>
+
+                    <span class="footer-title">
+                        TECHNOLOGY
+                    </span>
+
+                    <span>
+                        AI Analysis
+                    </span>
+
+                    <span>
+                        Architecture Graph
+                    </span>
+
+                    <span>
+                        GitHub Integration
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 RepoLens AI. All rights reserved.
+            </span>
+
+            <span>
+                Built for developers who want clarity.
+            </span>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =====================================================
+         SCRIPT
+         ===================================================== -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

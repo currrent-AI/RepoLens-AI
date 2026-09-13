@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Architecture | RepoLens AI</title>
+<link rel="icon" href="data:,">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#070d1a;--sidebar:#080e1c;--card:#111c31;--card2:#0c1629;
+ --border:#203655;--blue:#4d9cff;--blue2:#2d7ff9;
+ --text:#f4f7fb;--muted:#8da4c6;--green:#20d477;
+ --yellow:#f5b942;--red:#ff5964;
+}
+body{
+ font-family:Inter,Arial,sans-serif;
+ background:radial-gradient(circle at 75% 10%,rgba(42,113,220,.08),transparent 30%),var(--bg);
+ color:var(--text);min-height:100vh;
+}
+a{color:inherit;text-decoration:none}
+.sidebar{
+ position:fixed;inset:0 auto 0 0;width:250px;background:var(--sidebar);
+ border-right:1px solid var(--border);padding:24px 16px;z-index:20;
+ display:flex;flex-direction:column;
+}
+.brand{
+ display:flex;align-items:center;gap:12px;padding:4px 10px 26px;
+ border-bottom:1px solid var(--border);cursor:pointer;
+}
+.brand img{width:44px;height:44px;object-fit:contain;transition:.2s}
+.brand:hover img{transform:scale(1.05)}
+.brand-name{font-size:18px;font-weight:850}
+.brand-sub{margin-top:4px;color:var(--blue);font-size:9px;letter-spacing:2px}
+.nav-title{
+ margin:25px 10px 10px;color:#6e91be;font-size:10px;font-weight:800;letter-spacing:2px
+}
+.nav-link{
+ display:flex;align-items:center;gap:12px;padding:12px 12px;margin-bottom:5px;
+ border:1px solid transparent;border-radius:11px;color:#91acd0;font-size:13px;transition:.2s
+}
+.nav-link:hover,.nav-link.active{color:#fff;background:#102039;border-color:#275183}
+.nav-icon{width:18px;text-align:center;color:var(--blue)}
+.sidebar-footer{margin-top:auto;color:#526b8d;font-size:10px;padding:14px 10px}
+.main{margin-left:250px;min-height:100vh}
+.topbar{
+ height:72px;padding:0 32px;border-bottom:1px solid var(--border);
+ display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;
+ background:rgba(7,13,26,.93);backdrop-filter:blur(18px);z-index:10
+}
+.page-title{font-size:20px;font-weight:800}
+.engine-status{display:flex;align-items:center;gap:8px;color:#a4b7d3;font-size:12px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px rgba(32,212,119,.8)}
+.content{padding:32px;max-width:1450px;margin:auto}
+.eyebrow{
+ display:inline-flex;padding:6px 11px;border-radius:30px;border:1px solid #2463a8;
+ color:#65a9ff;font-size:10px;letter-spacing:1px;background:rgba(42,123,230,.07)
+}
+.hero-title{font-size:34px;margin-top:15px}
+.hero-description{margin-top:8px;color:var(--muted);font-size:13px}
+.repo-card{
+ margin-top:25px;padding:22px 25px;border:1px solid #28517e;border-radius:18px;
+ background:linear-gradient(135deg,#12213a,#0d192d);box-shadow:0 15px 45px rgba(0,0,0,.18)
+}
+.repo-label{color:#7799c2;font-size:10px;letter-spacing:1.8px}
+.repo-url{margin-top:8px;color:var(--blue);font-size:15px;word-break:break-all}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:16px}
+.stat-card{padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:15px}
+.stat-label{color:#7998c0;font-size:11px}.stat-value{margin-top:8px;font-size:25px;font-weight:850}
+.dashboard-grid{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;margin-top:16px}
+.card{
+ background:var(--card);border:1px solid var(--border);border-radius:16px;padding:21px;overflow:hidden
+}
+.card-title{font-size:16px;font-weight:800}.card-description{color:var(--muted);margin-top:6px;font-size:11px;line-height:1.5}
+.project-type{color:var(--blue);font-size:18px;font-weight:700;line-height:1.45;margin-top:18px}
+.tech-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.tech{border:1px solid #28578b;background:#0b1a31;color:#83b9ff;padding:7px 10px;border-radius:9px;font-size:11px}
+.components-list{margin-top:16px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.component{padding:13px;background:var(--card2);border:1px solid #1d3554;border-radius:11px}
+.component-name{color:white;font-weight:700;font-size:12px}
+.component-type{display:inline-block;margin-top:6px;padding:3px 6px;background:rgba(66,142,239,.12);color:#73afff;border-radius:5px;font-size:9px}
+.component-description{color:var(--muted);margin-top:7px;line-height:1.45;font-size:10px}
+.graph-card{margin-top:16px}
+.graph-wrapper{
+ margin-top:17px;min-height:470px;
+ background:linear-gradient(rgba(43,90,140,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(43,90,140,.07) 1px,transparent 1px),#071223;
+ background-size:32px 32px;border:1px solid #203b60;border-radius:14px;overflow:auto;padding:12px
+}
+svg{display:block;min-width:900px;width:100%;height:450px}
+.node-box{fill:#10213a;stroke:#348aff;stroke-width:2}
+.node-box:hover{fill:#163052}
+.node-text{fill:white;font-size:14px;font-weight:700;text-anchor:middle}
+.node-sub{fill:#79a0cc;font-size:9px;text-anchor:middle}
+.edge{stroke:#4b83b7;stroke-width:1.5;marker-end:url(#arrow);opacity:.75}
+.edge-label{fill:#8aa8ca;font-size:9px;text-anchor:middle}
+.smart-list{margin-top:15px;display:grid;gap:9px}
+.list-item{padding:12px;background:var(--card2);border:1px solid #1e3655;border-radius:11px;color:#b3c5dc;line-height:1.45;font-size:11px}
+.relationship-item{display:grid;grid-template-columns:1fr auto 1fr;gap:7px;align-items:center}
+.relationship-node{padding:8px;background:#10213a;border:1px solid #23466e;border-radius:8px;color:#dbeafe;font-size:10px;overflow:hidden;text-overflow:ellipsis}
+.relationship-arrow{color:var(--blue);font-weight:800}
+.relationship-type{grid-column:1/-1;color:#8199b8;font-size:10px;padding-left:2px}
+.security-item{padding:13px;border:1px solid #293f5e;background:#0c1729;border-radius:11px}
+.security-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.security-finding{font-weight:700;line-height:1.4;font-size:11px}
+.severity{flex-shrink:0;padding:4px 7px;border-radius:7px;font-size:9px;font-weight:800}
+.severity.low{color:#36df8a;background:rgba(32,212,119,.12)}
+.severity.medium{color:#ffd05a;background:rgba(245,185,66,.12)}
+.severity.high,.severity.critical{color:#ff7c84;background:rgba(255,89,100,.12)}
+.recommendation{color:var(--muted);margin-top:7px;line-height:1.45;font-size:10px}
+.flow-step{display:flex;align-items:flex-start;gap:9px}
+.flow-number{width:23px;height:23px;border-radius:50%;background:#15345c;color:#7db6ff;display:grid;place-items:center;flex-shrink:0;font-size:10px;font-weight:700}
+.empty{color:#7189aa;padding:14px 0;font-size:11px}
+.back-button{
+ margin-top:20px;display:inline-flex;padding:10px 15px;border-radius:9px;
+ border:1px solid #28517e;color:#8ebcff;background:#0d1b30;font-size:11px
+}
+.back-button:hover{background:#132746}
+.toast{
+ position:fixed;right:24px;bottom:24px;padding:12px 16px;background:#13233b;
+ border:1px solid #2c5c91;border-radius:10px;color:white;opacity:0;transform:translateY(15px);
+ pointer-events:none;transition:.25s;z-index:100;font-size:12px
+}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:1100px){
+ .sidebar{width:210px}.main{margin-left:210px}.content{padding:24px}.stats-grid{grid-template-columns:repeat(2,1fr)}
+ .dashboard-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+ .sidebar{position:relative;width:100%;min-height:auto;padding:15px}.main{margin-left:0}
+ .sidebar-footer{display:none}.nav-title{margin-top:15px}.nav-link{display:inline-flex;margin-right:4px}
+ .topbar{height:62px;padding:0 18px}.content{padding:18px}.stats-grid{grid-template-columns:1fr 1fr}
+ .components-list{grid-template-columns:1fr}.hero-title{font-size:27px}.engine-status{font-size:10px}
+}
+@media(max-width:450px){.stats-grid{grid-template-columns:1fr}.dashboard-grid{grid-template-columns:1fr}}
+</style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+ <a href="dashboard.html" class="brand" aria-label="RepoLens AI Dashboard">
+  <img src="../assets/repolens_logo.png" alt="RepoLens AI">
+  <div>
+   <div class="brand-name">RepoLens AI</div>
+   <div class="brand-sub">CODE INTELLIGENCE</div>
+  </div>
+ </a>
+
+ <div class="nav-title">WORKSPACE</div>
+ <a class="nav-link" href="dashboard.html"><span class="nav-icon">◇</span>Dashboard</a>
+ <a class="nav-link" href="dashboard.html#analyzer"><span class="nav-icon">⌁</span>Analyze Repository</a>
+ <a class="nav-link active" href="architecture.html"><span class="nav-icon">◆</span>Architecture</a>
+ <a class="nav-link" href="history.html"><span class="nav-icon">◯</span>History</a>
+
+ <div class="nav-title">ACCOUNT</div>
+ <a class="nav-link" href="settings.html"><span class="nav-icon">⚙</span>Settings</a>
+
+ <div class="sidebar-footer">RepoLens AI · Architecture Intelligence</div>
+</aside>
+
+<main class="main">
+ <header class="topbar">
+  <h1 class="page-title">Architecture</h1>
+  <div class="engine-status"><span class="status-dot"></span>AI Engine Ready</div>
+ </header>
+
+ <section class="content">
+  <span class="eyebrow">✦ AI ARCHITECTURE INTELLIGENCE</span>
+  <h2 class="hero-title">Architecture Overview</h2>
+  <p class="hero-description">Understand your repository structure, components, relationships and data flow with AI.</p>
+
+  <div class="repo-card">
+   <div class="repo-label">ANALYZED REPOSITORY</div>
+   <div class="repo-url" id="repoUrl">Loading repository...</div>
+  </div>
+
+  <div class="stats-grid">
+   <div class="stat-card"><div class="stat-label">Files Found</div><div class="stat-value" id="filesFound">0</div></div>
+   <div class="stat-card"><div class="stat-label">Files Analyzed</div><div class="stat-value" id="filesAnalyzed">0</div></div>
+   <div class="stat-card"><div class="stat-label">Components</div><div class="stat-value" id="componentCount">0</div></div>
+   <div class="stat-card"><div class="stat-label">Technologies</div><div class="stat-value" id="technologyCount">0</div></div>
+  </div>
+
+  <div class="dashboard-grid">
+   <section class="card">
+    <div class="card-title">Project Type</div>
+    <div class="project-type" id="projectType">Loading...</div>
+   </section>
+   <section class="card">
+    <div class="card-title">Technology Stack</div>
+    <div class="tech-list" id="technologiesList"></div>
+   </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+   <div class="card-title">Detected Components</div>
+   <div class="card-description">AI-identified architectural building blocks.</div>
+   <div class="components-list" id="componentsList"></div>
+  </section>
+
+  <section class="card graph-card">
+   <div class="card-title">Architecture Map</div>
+   <div class="card-description">AI-generated view of the major architectural components and how they interact.</div>
+   <div class="graph-wrapper">
+    <svg id="architectureSvg" viewBox="0 0 1100 500" preserveAspectRatio="xMidYMid meet">
+     <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+       <path d="M0,0 L0,6 L7,3 z" fill="#4b83b7"></path>
+      </marker>
+     </defs>
+     <g id="graphEdges"></g><g id="graphNodes"></g>
+    </svg>
+   </div>
+  </section>
+
+  <div class="dashboard-grid">
+   <section class="card">
+    <div class="card-title">Component Relationships</div>
+    <div class="card-description">How the major components interact with each other.</div>
+    <div class="smart-list" id="relationshipsList"></div>
+   </section>
+
+   <section class="card">
+    <div class="card-title">Security Findings</div>
+    <div class="card-description">Potential security issues identified by AI.</div>
+    <div class="smart-list" id="securityList"></div>
+   </section>
+
+   <section class="card">
+    <div class="card-title">Data Flow</div>
+    <div class="card-description">The detected movement of data through the system.</div>
+    <div class="smart-list" id="dataFlowList"></div>
+   </section>
+
+   <section class="card">
+    <div class="card-title">Architecture Strengths</div>
+    <div class="smart-list" id="strengthsList"></div>
+   </section>
+
+   <section class="card">
+    <div class="card-title">Architecture Weaknesses</div>
+    <div class="smart-list" id="weaknessesList"></div>
+   </section>
+
+   <section class="card">
+    <div class="card-title">AI Recommendations</div>
+    <div class="smart-list" id="recommendationsList"></div>
+   </section>
+  </div>
+
+  <a href="dashboard.html" class="back-button">← Back to Dashboard</a>
+ </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY="repolens_last_analysis";
+
+function safeArray(v){return Array.isArray(v)?v:[]}
+function safeText(v,fallback="—"){return v===null||v===undefined||v===""?fallback:String(v)}
+function escapeHTML(v){
+ return safeText(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))
+}
+function showToast(message){
+ const t=document.getElementById("toast");
+ t.textContent=message;t.classList.add("show");
+ clearTimeout(window.__toastTimer);
+ window.__toastTimer=setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+function loadAnalysis(){
+ const raw=localStorage.getItem(STORAGE_KEY);
+ if(!raw){
+  showToast("No analysis found. Please analyze a repository first.");
+  document.getElementById("repoUrl").textContent="No analysis available.";
+  document.getElementById("projectType").textContent="Analysis unavailable";
+  return;
+ }
+ try{renderAnalysis(JSON.parse(raw))}
+ catch(e){console.error(e);showToast("Saved analysis data is invalid.")}
+}
+
+function renderAnalysis(data){
+ const a=data.architecture||{};
+ const technologies=safeArray(a.technologies);
+ const components=safeArray(a.components);
+ const relationships=safeArray(a.relationships||a.connections);
+ const security=safeArray(a.security_findings);
+ const dataFlow=safeArray(a.data_flow);
+ const strengths=safeArray(a.strengths);
+ const weaknesses=safeArray(a.weaknesses);
+ const recommendations=safeArray(a.recommendations);
+
+ document.getElementById("repoUrl").textContent=safeText(data.repository,"Unknown repository");
+ document.getElementById("filesFound").textContent=data.files_found||0;
+ document.getElementById("filesAnalyzed").textContent=data.files_analyzed||0;
+ document.getElementById("componentCount").textContent=components.length;
+ document.getElementById("technologyCount").textContent=technologies.length;
+ document.getElementById("projectType").textContent=safeText(a.project_type,"Unknown project");
+
+ renderTechnologies(technologies);
+ renderComponents(components);
+ renderRelationships(relationships);
+ renderSecurity(security);
+ renderDataFlow(dataFlow);
+ renderSimpleList("strengthsList",strengths,"No strengths identified.");
+ renderSimpleList("weaknessesList",weaknesses,"No weaknesses identified.");
+ renderSimpleList("recommendationsList",recommendations,"No recommendations available.");
+ renderGraph(components,relationships);
+}
+
+function renderTechnologies(items){
+ const c=document.getElementById("technologiesList");c.innerHTML="";
+ if(!items.length){c.innerHTML='<div class="empty">No technologies identified.</div>';return}
+ items.forEach(item=>{
+  const d=document.createElement("div");d.className="tech";d.textContent=safeText(item);c.appendChild(d);
+ })
+}
+
+function renderComponents(items){
+ const c=document.getElementById("componentsList");c.innerHTML="";
+ if(!items.length){c.innerHTML='<div class="empty">No components identified.</div>';return}
+ items.forEach((item,index)=>{
+  const name=typeof item==="object"?item.name:`Component ${index+1}`;
+  const type=typeof item==="object"?item.type:"Component";
+  const desc=typeof item==="object"?item.description:"";
+  const d=document.createElement("div");d.className="component";
+  d.innerHTML=`<div class="component-name">${escapeHTML(name)}</div>
+   <span class="component-type">${escapeHTML(type||"Component")}</span>
+   <div class="component-description">${escapeHTML(desc||"AI detected architectural component.")}</div>`;
+  c.appendChild(d);
+ })
+}
+
+function renderRelationships(items){
+ const c=document.getElementById("relationshipsList");c.innerHTML="";
+ if(!items.length){c.innerHTML='<div class="empty">No component relationships identified.</div>';return}
+ items.forEach(item=>{
+  let source="",target="",relationship="";
+  if(typeof item==="object"){
+   source=item.source||item.from||"Unknown";target=item.target||item.to||"Unknown";
+   relationship=item.relationship||item.type||"interacts with";
+  }else relationship=String(item);
+  const d=document.createElement("div");d.className="list-item";
+  if(source&&target){
+   d.innerHTML=`<div class="relationship-item">
+    <div class="relationship-node">${escapeHTML(source)}</div><div class="relationship-arrow">→</div>
+    <div class="relationship-node">${escapeHTML(target)}</div>
+    <div class="relationship-type">${escapeHTML(relationship)}</div>
+   </div>`;
+  }else d.textContent=relationship;
+  c.appendChild(d);
+ })
+}
+
+function renderSecurity(items){
+ const c=document.getElementById("securityList");c.innerHTML="";
+ if(!items.length){c.innerHTML='<div class="empty">No security findings reported.</div>';return}
+ items.forEach(item=>{
+  let severity="Low",finding="",recommendation="";
+  if(typeof item==="object"){
+   severity=item.severity||"Low";finding=item.finding||item.issue||"Potential security issue";
+   recommendation=item.recommendation||"";
+  }else finding=String(item);
+  const cls=String(severity).toLowerCase();
+  const d=document.createElement("div");d.className="security-item";
+  d.innerHTML=`<div class="security-head"><div class="security-finding">${escapeHTML(finding)}</div>
+   <span class="severity ${escapeHTML(cls)}">${escapeHTML(severity)}</span></div>
+   ${recommendation?`<div class="recommendation">${escapeHTML(recommendation)}</div>`:""}`;
+  c.appendChild(d);
+ })
+}
+
+function renderDataFlow(items){
+ const c=document.getElementById("dataFlowList");c.innerHTML="";
+ if(!items.length){c.innerHTML='<div class="empty">No data flow identified.</div>';return}
+ items.forEach((item,i)=>{
+  const text=typeof item==="object"?JSON.stringify(item):String(item);
+  const d=document.createElement("div");d.className="list-item flow-step";
+  d.innerHTML=`<div class="flow-number">${i+1}</div><div>${escapeHTML(text)}</div>`;
+  c.appendChild(d);
+ })
+}
+
+function renderSimpleList(id,items,emptyMessage){
+ const c=document.getElementById(id);c.innerHTML="";
+ if(!items.length){c.innerHTML=`<div class="empty">${escapeHTML(emptyMessage)}</div>`;return}
+ items.forEach(item=>{
+  const d=document.createElement("div");d.className="list-item";
+  d.textContent=typeof item==="object"?JSON.stringify(item):String(item);
+  c.appendChild(d);
+ })
+}
+
+function renderGraph(components,relationships){
+ const edges=document.getElementById("graphEdges");
+ const nodes=document.getElementById("graphNodes");
+ edges.innerHTML="";nodes.innerHTML="";
+ if(!components.length)return;
+
+ const names=[...new Set(components.map((c,i)=>typeof c==="object"?(c.name||`Component ${i+1}`):String(c)))].slice(0,10);
+ const positions={};
+ const cx=550,cy=250;
+ const radius=Math.min(195,145+names.length*6);
+
+ names.forEach((name,i)=>{
+  const angle=(i/names.length)*Math.PI*2-Math.PI/2;
+  positions[name]={x:cx+Math.cos(angle)*radius,y:cy+Math.sin(angle)*radius}
+ });
+
+ relationships.forEach(item=>{
+  if(!item||typeof item!=="object")return;
+  const source=item.source||item.from,target=item.target||item.to;
+  if(!source||!target||!positions[source]||!positions[target])return;
+  const s=positions[source],t=positions[target];
+
+  const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+  line.setAttribute("x1",s.x);line.setAttribute("y1",s.y);
+  line.setAttribute("x2",t.x);line.setAttribute("y2",t.y);
+  line.setAttribute("class","edge");edges.appendChild(line);
+
+  const rel=item.relationship||item.type||"";
+  if(rel){
+   const label=document.createElementNS("http://www.w3.org/2000/svg","text");
+   label.setAttribute("x",(s.x+t.x)/2);label.setAttribute("y",(s.y+t.y)/2-7);
+   label.setAttribute("class","edge-label");label.textContent=String(rel).slice(0,28);
+   edges.appendChild(label);
+  }
+ });
+
+ names.forEach(name=>{
+  const pos=positions[name];
+  const group=document.createElementNS("http://www.w3.org/2000/svg","g");
+  const rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
+  rect.setAttribute("x",pos.x-78);rect.setAttribute("y",pos.y-30);
+  rect.setAttribute("width",156);rect.setAttribute("height",60);
+  rect.setAttribute("rx",13);rect.setAttribute("class","node-box");
+
+  const text=document.createElementNS("http://www.w3.org/2000/svg","text");
+  text.setAttribute("x",pos.x);text.setAttribute("y",pos.y-2);
+  text.setAttribute("class","node-text");text.textContent=String(name).slice(0,23);
+
+  group.appendChild(rect);group.appendChild(text);nodes.appendChild(group);
+ });
+}
+
+loadAnalysis();
+</script>
+</body>
+</html>

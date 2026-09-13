@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Settings | RepoLens AI</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #070d1a;
+            --sidebar: #080e1c;
+            --card: #111d32;
+            --card2: #0d1729;
+            --border: #203653;
+            --blue: #3b8cff;
+            --blue2: #4f6df5;
+            --text: #f4f7fb;
+            --muted: #8fa6c8;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+                         BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* =========================
+           LAYOUT
+        ========================= */
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            min-height: 100vh;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            padding: 28px 18px 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .brand {
+            padding: 0 12px 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand img {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .brand-info h2 {
+            font-size: 22px;
+            line-height: 1.05;
+            font-weight: 800;
+        }
+
+        .brand-info span {
+            display: block;
+            margin-top: 9px;
+            color: #76a8ec;
+            font-size: 11px;
+            letter-spacing: 3px;
+        }
+
+        .nav-section {
+            margin-top: 32px;
+        }
+
+        .nav-title {
+            padding: 0 14px;
+            margin-bottom: 12px;
+            color: #5277a8;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            margin-bottom: 7px;
+            border: 1px solid transparent;
+            border-radius: 13px;
+            color: #8eabd2;
+            font-size: 16px;
+            transition: 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: #0d192d;
+            border-color: #1b3558;
+        }
+
+        .nav-link.active {
+            color: white;
+            background: #101f38;
+            border-color: #24528a;
+        }
+
+        .nav-icon {
+            width: 18px;
+            text-align: center;
+            color: var(--blue);
+            font-size: 16px;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 112px;
+            padding: 0 42px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: rgba(7, 13, 26, 0.94);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(15px);
+        }
+
+        .topbar h1 {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .engine {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #9eb2d1;
+            font-size: 15px;
+        }
+
+        .engine-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 18px rgba(34, 197, 94, 0.8);
+        }
+
+        .content {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 46px 42px 80px;
+        }
+
+        .page-intro {
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            color: var(--blue);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 13px;
+        }
+
+        .page-intro h2 {
+            font-size: 42px;
+            line-height: 1.1;
+            margin-bottom: 12px;
+        }
+
+        .page-intro p {
+            color: var(--muted);
+            font-size: 17px;
+        }
+
+        /* =========================
+           SETTINGS GRID
+        ========================= */
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1.35fr 0.9fr;
+            gap: 22px;
+        }
+
+        .card {
+            background: linear-gradient(
+                145deg,
+                rgba(17, 29, 50, 0.98),
+                rgba(12, 22, 39, 0.98)
+            );
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            padding: 25px 28px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h3 {
+            font-size: 19px;
+            margin-bottom: 7px;
+        }
+
+        .card-header p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .card-body {
+            padding: 28px;
+        }
+
+        /* =========================
+           PROFILE
+        ========================= */
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding-bottom: 26px;
+            margin-bottom: 26px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #3b82f6, #5865f2);
+            color: white;
+            font-size: 25px;
+            font-weight: 800;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .profile-info h4 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
+        }
+
+        .field label {
+            display: block;
+            color: #b9c9df;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #29415f;
+            border-radius: 11px;
+            background: #091426;
+            color: white;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .field input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(59, 140, 255, 0.1);
+        }
+
+        .field input:disabled {
+            color: #8298b9;
+            cursor: not-allowed;
+        }
+
+        .save-btn {
+            margin-top: 22px;
+            border: none;
+            border-radius: 10px;
+            padding: 13px 21px;
+            color: white;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3182f6, #5b65ee);
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+        }
+
+        /* =========================
+           PREFERENCE ROWS
+        ========================= */
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 19px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-row:first-child {
+            padding-top: 0;
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .setting-info h4 {
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .setting-info p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* Toggle */
+
+        .switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            border-radius: 30px;
+            background: #263750;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 3px;
+            top: 3px;
+            border-radius: 50%;
+            background: white;
+            transition: 0.25s ease;
+        }
+
+        .switch input:checked + .slider {
+            background: var(--blue);
+        }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(22px);
+        }
+
+        /* =========================
+           SECURITY
+        ========================= */
+
+        .security-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 17px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .security-item:last-child {
+            border-bottom: none;
+        }
+
+        .security-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #0b1c35;
+            border: 1px solid #24466e;
+            display: grid;
+            place-items: center;
+            color: var(--blue);
+            flex-shrink: 0;
+        }
+
+        .security-info h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .security-info p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           DANGER
+        ========================= */
+
+        .danger-card {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .danger-card .card-header {
+            border-bottom-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .danger-text {
+            color: #a9b8cc;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            background: rgba(239, 68, 68, 0.08);
+            color: #ff7777;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        /* =========================
+           TOAST
+        ========================= */
+
+        .toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            padding: 14px 18px;
+            border-radius: 11px;
+            background: #10223b;
+            border: 1px solid #2b527f;
+            color: white;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(15px);
+            pointer-events: none;
+            transition: 0.25s ease;
+            z-index: 999;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* =========================
+           MOBILE MENU
+        ========================= */
+
+        .menu-btn {
+            display: none;
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #0d192c;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .overlay {
+            display: none;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1050px) {
+            .sidebar {
+                width: 240px;
+                min-width: 240px;
+            }
+
+            .main {
+                margin-left: 240px;
+                width: calc(100% - 240px);
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                width: 270px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .topbar {
+                height: 78px;
+                padding: 0 20px;
+            }
+
+            .topbar h1 {
+                font-size: 25px;
+            }
+
+            .engine {
+                display: none;
+            }
+
+            .menu-btn {
+                display: block;
+            }
+
+            .overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.55);
+                z-index: 90;
+            }
+
+            .overlay.show {
+                display: block;
+            }
+
+            .content {
+                padding: 32px 20px 60px;
+            }
+
+            .page-intro h2 {
+                font-size: 32px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .content {
+                padding: 26px 14px 50px;
+            }
+
+            .page-intro h2 {
+                font-size: 28px;
+            }
+
+            .page-intro p {
+                font-size: 14px;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 20px;
+            }
+
+            .profile {
+                align-items: flex-start;
+            }
+
+            .avatar {
+                width: 58px;
+                height: 58px;
+                font-size: 20px;
+            }
+
+            .setting-row {
+                align-items: flex-start;
+            }
+
+            .setting-info {
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <img src="../assets/repolens_logo.png" alt="RepoLens AI">
+
+            <div class="brand-info">
+                <h2>RepoLens<br>AI</h2>
+                <span>CODE INTELLIGENCE</span>
+            </div>
+        </div>
+
+        <div class="nav-section">
+
+            <div class="nav-title">WORKSPACE</div>
+
+            <a href="dashboard.html" class="nav-link">
+                <span class="nav-icon">◇</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="dashboard.html#analyzer" class="nav-link">
+                <span class="nav-icon">⌁</span>
+                <span>Analyze Repository</span>
+            </a>
+
+            <a href="architecture.html" class="nav-link">
+                <span class="nav-icon">◆</span>
+                <span>Architecture</span>
+            </a>
+
+            <a href="history.html" class="nav-link">
+                <span class="nav-icon">○</span>
+                <span>History</span>
+            </a>
+
+        </div>
+
+        <div class="nav-section">
+
+            <div class="nav-title">ACCOUNT</div>
+
+            <a href="settings.html" class="nav-link active">
+                <span class="nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="topbar">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <button class="menu-btn" id="menuBtn">☰</button>
+                <h1>Settings</h1>
+            </div>
+
+            <div class="engine">
+                <span class="engine-dot"></span>
+                <span>AI Engine Ready</span>
+            </div>
+        </header>
+
+        <section class="content">
+
+            <div class="page-intro">
+                <div class="eyebrow">Workspace Configuration</div>
+
+                <h2>Settings</h2>
+
+                <p>
+                    Manage your RepoLens AI profile, preferences and workspace.
+                </p>
+            </div>
+
+            <div class="settings-grid">
+
+                <!-- PROFILE -->
+                <section class="card">
+
+                    <div class="card-header">
+                        <h3>Profile</h3>
+                        <p>Your RepoLens AI account information.</p>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="profile">
+
+                            <div class="avatar" id="avatar">
+                                U
+                            </div>
+
+                            <div class="profile-info">
+                                <h4 id="profileName">User</h4>
+                                <p id="profileEmail">
+                                    user@example.com
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="field">
+                            <label>Full Name</label>
+
+                            <input
+                                type="text"
+                                id="nameInput"
+                                placeholder="Your name"
+                            >
+                        </div>
+
+                        <div class="field">
+                            <label>Email Address</label>
+
+                            <input
+                                type="email"
+                                id="emailInput"
+                                disabled
+                            >
+                        </div>
+
+                        <button class="save-btn" id="saveProfile">
+                            Save Changes
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- PREFERENCES -->
+                <section class="card">
+
+                    <div class="card-header">
+                        <h3>Preferences</h3>
+                        <p>Customize your RepoLens experience.</p>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="setting-row">
+
+                            <div class="setting-info">
+                                <h4>Analysis Notifications</h4>
+                                <p>
+                                    Show notifications when an analysis finishes.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+                                <input
+                                    type="checkbox"
+                                    id="notificationToggle"
+                                    checked
+                                >
+                                <span class="slider"></span>
+                            </label>
+
+                        </div>
+
+
+                        <div class="setting-row">
+
+                            <div class="setting-info">
+                                <h4>Save Analysis History</h4>
+                                <p>
+                                    Keep your recent repository analyses locally.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+                                <input
+                                    type="checkbox"
+                                    id="historyToggle"
+                                    checked
+                                >
+                                <span class="slider"></span>
+                            </label>
+
+                        </div>
+
+
+                        <div class="setting-row">
+
+                            <div class="setting-info">
+                                <h4>AI Architecture Insights</h4>
+                                <p>
+                                    Enable detailed AI-generated architecture insights.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+                                <input
+                                    type="checkbox"
+                                    id="insightsToggle"
+                                    checked
+                                >
+                                <span class="slider"></span>
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- SECURITY -->
+                <section class="card">
+
+                    <div class="card-header">
+                        <h3>Security</h3>
+                        <p>Account and workspace security information.</p>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="security-item">
+
+                            <div class="security-icon">
+                                🔒
+                            </div>
+
+                            <div class="security-info">
+                                <h4>Local Session</h4>
+                                <p>
+                                    Your current demo authentication session
+                                    is stored in this browser.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="security-item">
+
+                            <div class="security-icon">
+                                🛡
+                            </div>
+
+                            <div class="security-info">
+                                <h4>Repository Privacy</h4>
+                                <p>
+                                    RepoLens currently analyzes public GitHub
+                                    repositories.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="security-item">
+
+                            <div class="security-icon">
+                                ⚡
+                            </div>
+
+                            <div class="security-info">
+                                <h4>AI Processing</h4>
+                                <p>
+                                    Architecture insights are generated by
+                                    the connected AI analysis backend.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- AI SETTINGS -->
+                <section class="card">
+
+                    <div class="card-header">
+                        <h3>AI Analysis</h3>
+                        <p>Control how RepoLens presents analysis results.</p>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="setting-row">
+
+                            <div class="setting-info">
+                                <h4>Architecture Analysis</h4>
+                                <p>
+                                    Detect components and their relationships.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+                                <input
+                                    type="checkbox"
+                                    id="architectureToggle"
+                                    checked
+                                >
+                                <span class="slider"></span>
+                            </label>
+
+                        </div>
+
+
+                        <div class="setting-row">
+
+                            <div class="setting-info">
+                                <h4>Security Findings</h4>
+                                <p>
+                                    Display potential security issues identified by AI.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+                                <input
+                                    type="checkbox"
+                                    id="securityToggle"
+                                    checked
+                                >
+                                <span class="slider"></span>
+                            </label>
+
+                        </div>
+
+
+                        <div class="setting-row">
+
+                            <div class="setting-info">
+                                <h4>Recommendations</h4>
+                                <p>
+                                    Show AI-generated improvement recommendations.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+                                <input
+                                    type="checkbox"
+                                    id="recommendationToggle"
+                                    checked
+                                >
+                                <span class="slider"></span>
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- DANGER -->
+                <section class="card danger-card">
+
+                    <div class="card-header">
+                        <h3>Account Session</h3>
+                        <p>End your current RepoLens AI session.</p>
+                    </div>
+
+                    <div class="card-body">
+
+                        <p class="danger-text">
+                            Logging out will remove your current local session
+                            from this browser. Your locally saved analysis
+                            history will remain available unless you clear it.
+                        </p>
+
+                        <button class="logout-btn" id="logoutBtn">
+                            Log Out
+                        </button>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+    /* ==========================================
+       AUTH
+    ========================================== */
+
+    const currentUser =
+        JSON.parse(
+            localStorage.getItem("repolens_current_user") || "null"
+        );
+
+    if (!currentUser) {
+        window.location.href = "login.html";
+    }
+
+
+    /* ==========================================
+       PROFILE
+    ========================================== */
+
+    const nameInput =
+        document.getElementById("nameInput");
+
+    const emailInput =
+        document.getElementById("emailInput");
+
+    const profileName =
+        document.getElementById("profileName");
+
+    const profileEmail =
+        document.getElementById("profileEmail");
+
+    const avatar =
+        document.getElementById("avatar");
+
+
+    if (currentUser) {
+
+        const name =
+            currentUser.name || "User";
+
+        const email =
+            currentUser.email || "";
+
+        nameInput.value = name;
+        emailInput.value = email;
+
+        profileName.textContent = name;
+        profileEmail.textContent = email;
+
+        avatar.textContent =
+            name.charAt(0).toUpperCase();
+    }
+
+
+    /* ==========================================
+       TOAST
+    ========================================== */
+
+    const toast =
+        document.getElementById("toast");
+
+    function showToast(message) {
+
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2500);
+    }
+
+
+    /* ==========================================
+       SAVE PROFILE
+    ========================================== */
+
+    document
+        .getElementById("saveProfile")
+        .addEventListener("click", () => {
+
+            const newName =
+                nameInput.value.trim();
+
+            if (!newName) {
+                showToast("Please enter your name.");
+                return;
+            }
+
+            const updatedUser = {
+                ...currentUser,
+                name: newName
+            };
+
+            localStorage.setItem(
+                "repolens_current_user",
+                JSON.stringify(updatedUser)
+            );
+
+            profileName.textContent = newName;
+
+            avatar.textContent =
+                newName.charAt(0).toUpperCase();
+
+            showToast("Profile updated successfully.");
+        });
+
+
+    /* ==========================================
+       SETTINGS STORAGE
+    ========================================== */
+
+    const settings = {
+
+        notifications: true,
+        history: true,
+        insights: true,
+        architecture: true,
+        security: true,
+        recommendations: true
+
+    };
+
+
+    const savedSettings =
+        JSON.parse(
+            localStorage.getItem("repolens_settings") || "null"
+        );
+
+    if (savedSettings) {
+        Object.assign(settings, savedSettings);
+    }
+
+
+    const toggles = {
+
+        notificationToggle:
+            "notifications",
+
+        historyToggle:
+            "history",
+
+        insightsToggle:
+            "insights",
+
+        architectureToggle:
+            "architecture",
+
+        securityToggle:
+            "security",
+
+        recommendationToggle:
+            "recommendations"
+
+    };
+
+
+    Object.entries(toggles).forEach(
+        ([elementId, settingKey]) => {
+
+            const element =
+                document.getElementById(elementId);
+
+            element.checked =
+                settings[settingKey];
+
+            element.addEventListener(
+                "change",
+                () => {
+
+                    settings[settingKey] =
+                        element.checked;
+
+                    localStorage.setItem(
+                        "repolens_settings",
+                        JSON.stringify(settings)
+                    );
+
+                    showToast("Preference saved.");
+                }
+            );
+
+        }
+    );
+
+
+    /* ==========================================
+       LOGOUT
+    ========================================== */
+
+    document
+        .getElementById("logoutBtn")
+        .addEventListener("click", () => {
+
+            localStorage.removeItem(
+                "repolens_current_user"
+            );
+
+            window.location.href =
+                "login.html";
+        });
+
+
+    /* ==========================================
+       MOBILE SIDEBAR
+    ========================================== */
+
+    const menuBtn =
+        document.getElementById("menuBtn");
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    const overlay =
+        document.getElementById("overlay");
+
+
+    menuBtn.addEventListener("click", () => {
+
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("show");
+
+    });
+
+
+    overlay.addEventListener("click", () => {
+
+        sidebar.classList.remove("open");
+        overlay.classList.remove("show");
+
+    });
+
+
+    /* Close sidebar after navigation */
+
+    document
+        .querySelectorAll(".nav-link")
+        .forEach(link => {
+
+            link.addEventListener("click", () => {
+
+                sidebar.classList.remove("open");
+                overlay.classList.remove("show");
+
+            });
+
+        });
+
+</script>
+
+</body>
+</html>

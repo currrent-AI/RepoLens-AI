@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign In — RepoLens AI</title>
+
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .auth-page {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .auth-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.10);
+            filter: blur(100px);
+            pointer-events: none;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            padding: 42px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
+
+        .auth-logo img {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+        }
+
+        .auth-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .form-group input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid #263650;
+            background: #0b1324;
+            color: #f1f5f9;
+            outline: none;
+            font-size: 15px;
+            transition: 0.25s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap input {
+            padding-right: 70px;
+        }
+
+        .show-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .show-password:hover {
+            color: #3b82f6;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .remember {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            color: #94a3b8;
+        }
+
+        .remember input {
+            accent-color: #3b82f6;
+        }
+
+        .forgot {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(
+                135deg,
+                #3b82f6,
+                #6366f1
+            );
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s ease;
+            margin-top: 4px;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(59,130,246,0.25);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-home {
+            position: absolute;
+            top: 28px;
+            left: 28px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .back-home:hover {
+            color: #fff;
+        }
+
+        .message {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .message.error {
+            display: block;
+            background: rgba(239,51,64,0.10);
+            border: 1px solid rgba(239,51,64,0.25);
+            color: #fca5a5;
+        }
+
+        @media (max-width: 600px) {
+
+            .auth-card {
+                padding: 30px 22px;
+            }
+
+            .auth-title {
+                font-size: 27px;
+            }
+
+            .back-home {
+                top: 18px;
+                left: 18px;
+            }
+
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <div class="auth-glow"></div>
+
+        <a href="index.html" class="back-home">
+            ← Back to Home
+        </a>
+
+        <div class="auth-card">
+
+            <div class="auth-logo">
+                <img
+                    src="../assets/repolens_logo.png"
+                    alt="RepoLens AI"
+                >
+            </div>
+
+            <h1 class="auth-title">
+                Welcome back
+            </h1>
+
+            <p class="auth-subtitle">
+                Sign in to continue analyzing and
+                understanding your codebase.
+            </p>
+
+            <div id="errorMessage" class="message"></div>
+
+            <form id="loginForm" class="auth-form">
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="you@example.com"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-wrap">
+
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Enter your password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="show-password"
+                            id="togglePassword"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="form-options">
+
+                    <label class="remember">
+
+                        <input
+                            type="checkbox"
+                            id="remember"
+                        >
+
+                        Remember me
+
+                    </label>
+
+                    <a
+                        href="#"
+                        class="forgot"
+                        onclick="return false;"
+                    >
+                        Forgot password?
+                    </a>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="auth-button"
+                >
+                    Sign In
+                </button>
+
+            </form>
+
+            <div class="auth-footer">
+
+                Don't have an account?
+
+                <a href="signup.html">
+                    Create Account
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        const form =
+            document.getElementById("loginForm");
+
+        const errorMessage =
+            document.getElementById("errorMessage");
+
+        const password =
+            document.getElementById("password");
+
+        const togglePassword =
+            document.getElementById("togglePassword");
+
+
+        // Show / Hide password
+        togglePassword.addEventListener(
+            "click",
+            () => {
+
+                if (password.type === "password") {
+
+                    password.type = "text";
+                    togglePassword.textContent = "Hide";
+
+                } else {
+
+                    password.type = "password";
+                    togglePassword.textContent = "Show";
+
+                }
+
+            }
+        );
+
+
+        // Login
+        form.addEventListener(
+            "submit",
+            (event) => {
+
+                event.preventDefault();
+
+                const email =
+                    document
+                        .getElementById("email")
+                        .value
+                        .trim();
+
+                const pass =
+                    password.value;
+
+
+                const users =
+                    JSON.parse(
+                        localStorage.getItem(
+                            "repolens_users"
+                        ) || "{}"
+                    );
+
+
+                // Check account
+                if (!users[email]) {
+
+                    errorMessage.textContent =
+                        "No account found with this email.";
+
+                    errorMessage.className =
+                        "message error";
+
+                    return;
+                }
+
+
+                // Check password
+                if (users[email].password !== pass) {
+
+                    errorMessage.textContent =
+                        "Incorrect password. Please try again.";
+
+                    errorMessage.className =
+                        "message error";
+
+                    return;
+                }
+
+
+                // Save current user
+                localStorage.setItem(
+                    "repolens_current_user",
+                    JSON.stringify({
+                        name: users[email].name,
+                        email: users[email].email
+                    })
+                );
+
+
+                // Go to dashboard
+                window.location.href =
+                    "dashboard.html";
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>
